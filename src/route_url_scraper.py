@@ -125,7 +125,8 @@ def scrape_user(query):
     '''returns user page html'''
     url = "https://www.mountainproject.com%s" % query
     soup = soup_maker(url)
-    return soup
+    user_name = str(soup.find('h1').text)
+    return soup, user_name
 
 
 def search_route_page(grade):

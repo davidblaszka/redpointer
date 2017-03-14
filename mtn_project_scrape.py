@@ -30,7 +30,12 @@ start = "/v/washington/105708966"
 area_urls = search_area(start)
 
 
-rock_url = 'https://www.mountainproject.com/scripts/Search.php?searchType=routeFinder&minVotes=0&selectedIds=105708966&type=rock&diffMinrock=800&diffMinboulder=20000&diffMinaid=70000&diffMinice=30000&diffMinmixed=50000&diffMaxrock=12400&diffMaxboulder=21400&diffMaxaid=75260&diffMaxice=38500&diffMaxmixed=60000&is_trad_climb=1&is_sport_climb=1&is_top_rope=1&stars=0&pitches=0&sort1=area&sort2=rating'
+rock_url = '''https://www.mountainproject.com/scripts/Search.php?searchType=
+			routeFinder&minVotes=0&selectedIds=105708966&type=rock&diffMinrock=
+			800&diffMinboulder=20000&diffMinaid=70000&diffMinice=30000&diffMinmixed=
+			50000&diffMaxrock=12400&diffMaxboulder=21400&diffMaxaid=75260&diffMaxice=
+			38500&diffMaxmixed=60000&is_trad_climb=1&is_sport_climb=1&is_top_rope=
+			1&stars=0&pitches=0&sort1=area&sort2=rating'''
 
 def search_table(url):
     '''
@@ -76,18 +81,27 @@ def route_page_info(query):
     url = "https://www.mountainproject.com%s" % query
     html = search_mnt_project(url)
     soup = BeautifulSoup(html, 'html.parser')
+
     page_tag = soup.find('div', {'id':'rspCol800'})
     route_name = page_tag.find('span', {'itemprop':'itemreviewed'}).text
     route_grade = page_tag.find('span', {'class':'rateYDS'}).text
-    # need to find how to extract
-    route_stars = str(page_tag.find('span', {'id':'starSummaryText'}).find("meta", {"itemprop" : "average"}))[15:18] # this could be improved
-    #star_lurl =
-
-    route_type = page_tag.find('table').findAll('td')[1].text
-    route_original_grade = page_tag.find('table').findAll('td')[3].text
-    route_FA = page_tag.find('table').findAll('td')[5].text
-    route_page_views = page_tag.find('table').findAll('td')[7].text
-    route_submitted_by = page_tag.find('table').findAll('td')[9].text
+    route_stars_text = soup.find('span', {'id':'starSummaryText'}).text.split('Average: ')
+    route_stars = route_stars_text[1][:3]
+    # convert to string from unicode
+    star_url = str(soup.find('span', {'id':'starSummaryText'}).find('a', href=True).get('href'))
+	for i, td in enumerate(page_tag.find('table').findAll('td')): 
+		if td.text.split(':')[0] == 'Type':
+			route_type = page_tag.find('table').findAll('td')[i+1].text
+		elif td.text.split(':')[0] == 'Original':
+		    route_original_grade = page_tag.find('table').findAll('td')[i+1].text
+		elif td.text.split(':')[0] == 'FA':
+			route_FA = page_tag.find('table').findAll('td')[i+1].text
+		elif td.text.split(':')[0] == 'Season':
+			route_season = page_tag.find('table').findAll('td')[i+1].text
+		elif td.text.split(':')[0] == 'Page Views':
+			route_page_view = page_tag.find('table').findAll('td')[i+1].text
+		elif td.text.split(':')[0] == 'Submitted By':
+			route_submitted_by = page_tag.find('table').findAll('td')[i+1].text
 
     # maybe grab the rest of the page content for future use
 

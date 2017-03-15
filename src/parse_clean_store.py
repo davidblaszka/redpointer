@@ -14,40 +14,110 @@ def parse_route_page(html):
     page_tag = soup.find('div', {'id':'rspCol800'})
     # make route dict
     route_dict = {}
-    route_dict['name'] = page_tag.find('span', {'itemprop':'itemreviewed'}).text
-    route_dict['grade'] = page_tag.find('span', {'class':'rateYDS'}).text
-    route_stars_text = soup.find('span', {'id':'starSummaryText'}).text.split('Average: ')
-    route_dict['average_rating'] = route_stars_text[1][:3]
+    name = page_tag.find('span', {'itemprop':'itemreviewed'}).text
+    route_dict['name'] = name.encode('utf-8')
+    route_dict['grade'] = clean_grade(page_tag)
+    route_dict['average_rating'] = clean_average_rating(soup)
     
     for i, td in enumerate(page_tag.find('table').findAll('td')): 
         if td.text.split(':')[0] == 'Type':
-            route_dict['type'] = page_tag.find('table').findAll('td')[i+1].text
+            route_type = clean_route_type(page_tag.find('table').findAll('td')[i+1])
+            route_dict['route_type_list'] = route_type[0]
+            route_dict['pitches'] = route_type[1]
+            route_dict['height'] = route_type[2]
+            route_dict['uiaa'] = route_type[3]
+            route_dict['misc'] = route_type[4]
         elif td.text.split(':')[0] == 'Original':
-            route_dict['original_grade'] = page_tag.find('table').findAll('td')[i+1].text
+            o_grade = clean_original_grade(page_tag.find('table').findAll('td')[i+1])
+            route_dict['original_grade'] = o_grade
         elif td.text.split(':')[0] == 'FA':
             fa = page_tag.find('table').findAll('td')[i+1].text
             route_dict['FA'] = fa
         elif td.text.split(':')[0] == 'Season':
             season = page_tag.find('table').findAll('td')[i+1].text
-            route_dict['season'] = season
+            route_dict['season'] = season.encode('utf-8')
         elif td.text.split(':')[0] == 'Page Views':
-            route_dict['page_views'] = page_tag.find('table').findAll('td')[i+1].text
+			page_view = page_tag.find('table').findAll('td')[i+1].text
+			route_dict['page_views'] = int(page_view.encode('utf-8').replace(',',''))
         elif td.text.split(':')[0] == 'Submitted By':
-            route_dict['submitted_by'] = page_tag.find('table').findAll('td')[i+1].text
-            
+            sb = clean_submitted_by(page_tag.find('table').findAll('td')[i+1])
+            route_dict['submitted_by'] = sb[0]
+            route_dict['submitted_on'] = sb[1]
+
     return route_dict
+
+
+def clean_first_ascent(tag):
+	fa = tag.text.encode('utf-8')
+	fa_list = fa.split(',')
+	fa_people = []
+	fa_date = float('nan')
+	chars1 = set('?/')
+	chars2 = set('?')
+	for item in fa_list:
+		if not any((c not in chars1) for c in item):
+			fa_people.append(item)
+		elif any((c not in chars2) for c in item):
+			fa_date = item
+	return fa_people, fa_date
+
+def clean_route_type(tag):
+	route_type = tag.text
+	route_type = route_type.encode('utf-8').split(', ')
+	list_of_types = ['Trad', 'Sport', 'TR', 'Alpine', 
+					'Ice', 'Boulder', 'Aid', 'Mixed']
+	# initialize variables
+	route_type_list = []
+	pitches = float('nan')
+	height = float('nan')
+	uiaa = float('nan')
+	misc = float('nan')
+	for item in route_type:
+		if item in list_of_types:
+			route_type_list.append(item)
+		elif 'pitches' in item:
+			pitches = item.replace(' pitches', '')
+		elif 'pitch' in item:
+			pitches = item.replace(' pitch','')
+		elif "'" in item:
+			height = float(item.replace("'",''))
+		elif 'Grade' in item:
+			uiaa = item
+		else:
+			misc = item
+
+	return route_type_list, pitches, height, uiaa, misc
+
+
+def clean_submitted_by(tag):
+	sb = page_tag.text
+	sb = sb.encode('utf-8').split(' on ')
+	return sb[0], sb[1]
+
+
+def clean_original_grade(tag):
+	grade = page_tag.text
+	grade = grade.encode('utf-8').split('\xa0')[1]
+	grade = grade.split('French')[0]
+	return grade
+
+
+def clean_grade(tag):
+	grade = page_tag.find('span', {'class':'rateYDS'}).text
+	grade = grade.encode('utf-8').split('\xa0')[1]
+	return grade
 
 
 def clean_average_rating(soup):
 	route_stars_text = soup.find('span', {'id':'starSummaryText'}).text.split('Average: ')
-    average_rating = route_stars_text[1][:3]
-    if 'OK' in average_rating:
-    	average_rating = 1.0
-    elif 's' in average_rating:
-    	average_rating = float(average_rating[0])
-    else:
-    	average_rating = float(average_rating)
-    return average_rating
+	average_rating = route_stars_text[1][:3]
+	if 'OK' in average_rating:
+		average_rating = 1.0
+	elif 's' in average_rating:
+		average_rating = float(average_rating[0])
+	else:
+		average_rating = float(average_rating)
+	return average_rating
 
 
 def parse_user(html):

@@ -73,8 +73,8 @@ def route_urls():
     for t in table_tag:
         for row in t.findAll('tr'):
             a = row.findAll('td')[0].find('a', href=True)
-                if a != None:
-                    href_list.append(a.get('href'))
+            if a != None:
+                href_list.append(a.get('href'))
     return href_list
 
 def route_page_info(query):

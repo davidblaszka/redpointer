@@ -5,12 +5,12 @@ from urllib import urlencode
 import selenium.webdriver
 import random
 
-
-def parse_route_page(soup):
+def parse_route_page(html):
     '''
     takes a soup to parse
     returns dict of route info
     '''
+    soup = BeautifulSoup(html, 'html.parser')
     page_tag = soup.find('div', {'id':'rspCol800'})
     # make route dict
     route_dict = {}
@@ -25,7 +25,7 @@ def parse_route_page(soup):
         elif td.text.split(':')[0] == 'Original':
             route_dict['original_grade'] = page_tag.find('table').findAll('td')[i+1].text
         elif td.text.split(':')[0] == 'FA':
-            fa = str(page_tag.find('table').findAll('td')[i+1].text)
+            fa = page_tag.find('table').findAll('td')[i+1].text
             route_dict['FA'] = fa
         elif td.text.split(':')[0] == 'Season':
             season = page_tag.find('table').findAll('td')[i+1].text
@@ -38,9 +38,22 @@ def parse_route_page(soup):
     return route_dict
 
 
-def parse_user(soup):
+def clean_average_rating(soup):
+	route_stars_text = soup.find('span', {'id':'starSummaryText'}).text.split('Average: ')
+    average_rating = route_stars_text[1][:3]
+    if 'OK' in average_rating:
+    	average_rating = 1.0
+    elif 's' in average_rating:
+    	average_rating = float(average_rating[0])
+    else:
+    	average_rating = float(average_rating)
+    return average_rating
+
+
+def parse_user(html):
     '''returns user info'''
     # make user dict
+    soup = BeautifulSoup(html, 'html.parser')
     user_dict = {}
     user_dict['name'] = str(soup.find('h1').text)
     side_bar = soup.select('div.roundedBottom')[0].text.split('\n') # side bar

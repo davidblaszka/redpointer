@@ -6,22 +6,13 @@ import selenium.webdriver
 import random
 
 
-def search_mnt_project(url, browser, delay=3):
+def get_html(url, browser, delay=3):
     '''Pulls page content and returns it'''
     browser.get(url)
     # make delay more random
     delay = random.randint(2, 6)
     time.sleep(delay)  # Wait a few seconds before getting the HTML source
     return browser.page_source
-
-
-def soup_maker(url):
-    '''Opens up selenium webdriver and returns soup'''
-    browser = selenium.webdriver.Firefox()
-    html = search_mnt_project(url, browser)
-    browser.quit()
-    soup = BeautifulSoup(html, 'html.parser')
-    return soup
 
 
 def find_table_urls(table_tag, href_list):
@@ -41,7 +32,7 @@ def find_table_urls(table_tag, href_list):
     return href_list
 
 
-def find_route_urls(query, route_href_list):
+def find_route_urls(query, route_href_list, browser):
     '''
     INPUT
         - url - a page url
@@ -51,14 +42,15 @@ def find_route_urls(query, route_href_list):
         - soup - the html for the given page
     '''
     url = "https://www.mountainproject.com%s" % query
-    soup = soup_maker(url)
+    html = get_html(url, browser)
+    soup = BeautifulSoup(html, 'html.parser')
     table_tag = soup.select('table.objectList')
     product_tags = soup.select('div.search-result-gridview-item')
     route_href_list = find_table_urls(table_tag, route_href_list)
     return route_href_list, soup
 
 
-def all_route_urls(query, route_href_list):
+def all_route_urls(query, route_href_list, browser):
     '''
     find all route urls
     INPUT
@@ -66,7 +58,7 @@ def all_route_urls(query, route_href_list):
     OUTPUT
         - route_href_list - list off all the route's urls
     '''
-    route_href_list, soup = find_route_urls(query, route_href_list)
+    route_href_list, soup = find_route_urls(query, route_href_list, browser)
     # click next page
     page_url = ''
     while page_url is not None:
@@ -80,33 +72,35 @@ def all_route_urls(query, route_href_list):
         if page_url is False:
             page_url = None
             break
-        route_href_list, soup = find_route_urls(page_url, route_href_list)
+        route_href_list, soup = find_route_urls(page_url, route_href_list, browser)
     return route_href_list
 
 
-def scrape_route_page(query):
+def scrape_route_page(query, browser):
     '''
     Scrapes route pages for html 
     returns soup, url for the rating page for the route, and route name
     '''
     url = "https://www.mountainproject.com%s" % query
-    soup = soup_maker(url)
+    html = get_html(url, browser)
+    soup = BeautifulSoup(html, 'html.parser')
     # convert to string from unicode
     star_url = str(soup.find('span', {'id': 'starSummaryText'}).\
 				find('a', href=True).get('href'))
     page_tag = soup.find('div', {'id': 'rspCol800'})
     route_name = page_tag.find('span', {'itemprop': 'itemreviewed'}).text
-    return star_url, soup, route_name
+    return star_url, html, route_name
 
 
-def scrape_ratings_by_user(query, route_name):
+def scrape_ratings_by_user(query, browser):
     '''
     Input: query to ratings page and route_name
     Output: user_url, and rating_info
     '''
-    rating_dict = {'route_name': route_name, 'username': [], 'rating': []}
+    rating_dict = {'username': [], 'rating': []}
     url = "https://www.mountainproject.com%s" % query
-    soup = soup_maker(url)
+    html = get_html(url, browser)
+    soup = BeautifulSoup(html, 'html.parser')
     table_tag = soup.findAll('table')
     # the 4th table is the one with star votes
     for row in table_tag[3].findAll('tr'):
@@ -121,12 +115,13 @@ def scrape_ratings_by_user(query, route_name):
     return user_url, rating_dict
 
 
-def scrape_user(query):
+def scrape_user(query, browser):
     '''returns user page html'''
     url = "https://www.mountainproject.com%s" % query
-    soup = soup_maker(url)
+    html = get_html(url, browser)
+    soup = BeautifulSoup(html, 'html.parser')
     user_name = str(soup.find('h1').text)
-    return soup, user_name
+    return html, user_name
 
 
 def search_route_page(grade):
@@ -139,20 +134,3 @@ def search_route_page(grade):
     title&sort2=rating'''.format(*grade)
     return query
 
-
-if __name__ == "__main__":
-	# define grade search tuples 
-    grades = [(800,1600), (1800,2000), (2300,2300), 
-             (2600,2700), (3100,3300), (4600,5300), 
-             (6600,12400)]
-    # make empty list to fill with route page urls
-    route_href_list = [] 
-    for grade in grades:
-        query = search_route_page(grade)
-    	# returns all route urls
-    	route_href_list = all_route_urls(query, route_href_list)
-    # get html from route page ande user page, and make rating_dict
-    for route_href in route_href_list:
-    	star_url, route_soup, route_name = scrape_route_page(route_href)
-    	user_url, rating_dict = scrape_ratings_by_user(star_url, route_name)
-    	user_soup = scrape_user(user_url)

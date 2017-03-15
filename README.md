@@ -10,9 +10,9 @@ A big part of this project will be web scraping, or using mountain project’s A
 # Modeling
 The model will be an ensemble method using GradientBoosting and matrix factorization.
 
-#Evaluation
+# Evaluation
 I’ll create a hold out set and see how well it predicts the routes these users actually gave values to.
 
-#Deployment
+# Deployment
 I’ll have a website where you can either list a few routes you like, or if possible, attach the url to your account page to give you back recommendations for climbs you’d like to do. 
 

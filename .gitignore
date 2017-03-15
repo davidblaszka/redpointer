@@ -1,2 +1,4 @@
 *.log
 *.json
+*.pyc
+*.ipynb_checkpoints

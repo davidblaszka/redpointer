@@ -31,11 +31,13 @@ def cold_start(df):
 
 def update_df(df):
 	row = 0
+	route_list = []
 	df_new = pd.DataFrame(columns=['username','route','rating'])
 	for route, usernames, ratings in zip(df['route'], 
 										df['username'],
 										df['rating']):
 		row += 1
+		route_list.append(route)
 		for username, rating in zip(usernames, ratings):
 			row += 1
 			df_new.loc[row, 'username'] = username.encode('utf-8')
@@ -44,4 +46,4 @@ def update_df(df):
 	# convert to catagorical the numerical
 	df_new['username'] = df_new['username'].astype('category').cat.codes
 	df_new['route'] = df_new['route'].astype('category').cat.codes
-	return df_new
+	return df_new, route_list

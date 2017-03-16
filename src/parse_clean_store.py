@@ -152,20 +152,3 @@ def parse_user(html):
 
 	user_dict['compliments'] = side_bar[11].split(' Compliments')[0]
 	return user_dict
-
-
-def clean_ratings(rating_by_user_df):
-	'''takes a dataframe'''
-
-	# convert route name to utf-8
-	routes_series = rating_by_user_df['route'].map(lambda x: x.encode('utf-8'))
-	routes_list = routes_series.tolist()
-	# intialize dataframe with index as routes
-	df = pd.DataFrame(index=routes_list)
-	for route, usernames, ratings in zip(routes_list, 
-										rating_by_user_df['username'],
-										rating_by_user_df['rating']):
-		for username, rating in zip(usernames, ratings):
-			username = username.encode('utf-8')
-			df.loc[route, username] = rating
-	return df

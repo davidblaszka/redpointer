@@ -5,6 +5,7 @@ from urllib import urlencode
 import selenium.webdriver
 import random
 import pandas as pd
+import numpy as np
 
 def parse_route_page(html):
     '''
@@ -49,7 +50,7 @@ def clean_first_ascent(tag):
 	fa = tag.text.encode('utf-8')
 	fa_list = fa.split(',')
 	fa_people = []
-	fa_date = float('nan')
+	fa_date = np.nan
 	chars1 = set('?/')
 	chars2 = set('?')
 	for item in fa_list:
@@ -66,8 +67,8 @@ def clean_route_type(tag):
 	# initialize variables
 	route_type_dict = {'Trad': 0, 'Sport': 0, 'TR': 0, 'Alpine': 0, 
                 'Ice': 0, 'Boulder': 0, 'Aid': 0, 'Mixed': 0, 
-                   'pitches': float('nan'),'uiaa':float('nan'), 
-                   'height': float('nan')}
+                   'pitches': np.nan,'uiaa': np.nan, 
+                   'height': np.nan}
 	list_of_types = ['Trad', 'Sport', 'TR', 'Alpine', 
 	                'Ice', 'Boulder', 'Aid', 'Mixed']
 	for item in route_type:
@@ -121,14 +122,14 @@ def parse_user(html):
 	# make user dict
 	soup = BeautifulSoup(html, 'html.parser')
 
-	user_dict = {'Personal:': float('nan'),
-					'Favorite Climbs:': float('nan'),
-					'Other Interests:': float('nan'),
-					'Likes to climb:': float('nan'),
-					'Trad:': float('nan'),
-					'Sport:': float('nan'),
-					'Aid:': float('nan'),
-					'Ice:': float('nan')}
+	user_dict = {'Personal:': np.nan,
+					'Favorite Climbs:': np.nan,
+					'Other Interests:': np.nan,
+					'Likes to climb:': np.nan,
+					'Trad:': np.nan,
+					'Sport:': np.nan,
+					'Aid:': np.nan,
+					'Ice:': np.nan}
 
 	for item in soup.find('div',{'class': 'personalData'}).text.split('\n'):
 		for item2 in user_dict.keys():
@@ -148,16 +149,7 @@ def parse_user(html):
 				item_list = item1.split(item2)
 				if len(item_list) > 1:
 					user_dict[key] = item_list[1]
-	'''
-	member_since = side_bar[3].split('Since: ')
-	if len(member_since) > 1:
-		user_dict['member_since'] = member_since[1]
-	else:
-		member_since = float('nan')
-	user_dict['last_vist'] = side_bar[4].split('Visit: ')[1]
-	user_dict['point_rank'] = side_bar[9].split('Rank: # ')[1]
-	user_dict['total_points'] = side_bar[10].split('Points: ')[1].replace(',', '')
-	'''
+
 	user_dict['compliments'] = side_bar[11].split(' Compliments')[0]
 	return user_dict
 
@@ -165,19 +157,15 @@ def parse_user(html):
 def clean_ratings(rating_by_user_df):
 	'''takes a dataframe'''
 
-	# make empty dict to fill
-	rating_dict = {}
-	user_dict = []
-	routes = []
 	# convert route name to utf-8
-	for route, usernames, ratings in zip(rating_by_user_df['route'], 
+	routes_series = rating_by_user_df['route'].map(lambda x: x.encode('utf-8'))
+	routes_list = routes_series.tolist()
+	# intialize dataframe with index as routes
+	df = pd.DataFrame(index=routes_list)
+	for route, usernames, ratings in zip(routes_list, 
 										rating_by_user_df['username'],
 										rating_by_user_df['rating']):
-		routes.append(route.encode('utf-8'))
-		d = {}
 		for username, rating in zip(usernames, ratings):
-			d[username] = rating
-			user_dict.append(d)
-
-	return pd.DataFrame(user_dict, index=routes)
-
+			username = username.encode('utf-8')
+			df.loc[route, username] = rating
+	return df

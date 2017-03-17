@@ -7,7 +7,7 @@ import random
 import pandas as pd
 import numpy as np
 
-def parse_route_page(html):
+def parse_route_page(_id, html):
     '''
     takes a soup to parse
     returns dict of route info
@@ -16,6 +16,8 @@ def parse_route_page(html):
     page_tag = soup.find('div', {'id':'rspCol800'})
     # make route dict
     route_dict = {}
+    # make id
+    route_dict['id'] = _id
     name = page_tag.find('span', {'itemprop':'itemreviewed'}).text
     route_dict['name'] = name.encode('utf-8')
     route_dict['grade'] = clean_grade(page_tag)
@@ -152,3 +154,23 @@ def parse_user(html):
 
 	user_dict['compliments'] = side_bar[11].split(' Compliments')[0]
 	return user_dict
+
+
+def create_ratings_matrix(df):
+	'''creates a ratings matrix with route_id,user_id, and rating'''
+	route_id = 0
+	row = 0
+	username_list = []
+	df_new = pd.DataFrame(columns=['route_id','user_id','rating'])
+	for route, usernames, ratings in zip(df['route'], 
+	                                    df['username'],
+	                                    df['rating']):
+	    for username, rating in zip(usernames, ratings):
+	        if username not in username_list:
+	            username_list.append(username)
+	        df_new.loc[row,'route_id'] = route_id
+	        df_new.loc[row, 'user_id'] = username_list.index(username)
+	        df_new.loc[row, 'rating'] = rating
+	        row += 1
+	    route_id += 1
+	return df_new

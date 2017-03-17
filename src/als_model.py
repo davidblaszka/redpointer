@@ -4,11 +4,6 @@ from pyspark.ml.recommendation import ALS
 from pyspark.ml.evaluation import RegressionEvaluator
 from pymongo import MongoClient
 
-# Build our Spark Session and Context
-spark = pyspark.sql.SparkSession.builder.getOrCreate()
-sc = spark.sparkContext
-spark, sc
-
 class ALS_Model(object):
 
 	def __inti__(self, user, item, rating,

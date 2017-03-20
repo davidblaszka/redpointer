@@ -4,7 +4,6 @@ import numpy as np
 import pyspark
 from pyspark.sql.types import *
 from pyspark.ml.tuning import TrainValidationSplit
-from pyspark.ml.evaluation import RegressionEvaluator
 from pymongo import MongoClient
 from als_model import ALS_Model
 

@@ -1,7 +1,6 @@
 import pyspark
 from pyspark.sql.types import *
 from pyspark.ml.recommendation import ALS
-from pyspark.ml.evaluation import RegressionEvaluator
 from pymongo import MongoClient
 
 class ALS_Model(object):

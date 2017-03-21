@@ -28,12 +28,12 @@ if __name__ == "__main__":
 	for route_href in route_href_list:
 	    star_url, route_html, route_name = scrape_route_page(route_href, browser)
 	    route_html_dict = {route_name_utf8: route_html}
-	    route_html_dict['user_url'] = star_url
 	    add_to_route_html_database(route_html_dict)
 	    user_url, rating_dict = scrape_ratings_by_user(star_url, browser)
+	    rating_dict['user_url'] = user_url
 	    rating_dict['route'] = route_name
 	    add_to_rating_database(rating_dict)
-	    user_html, user_name = scrape_user(user_url, browser)
-	    user_html_dict = {user_name: user_html}
-	    add_to_user_html_database(user_html_dict)
+	    for url in user_url:
+	    	user_dict = scrape_user(url, browser)
+	    	add_to_user_html_database(user_dict)
 	browser.quit()

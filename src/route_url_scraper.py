@@ -98,6 +98,7 @@ def scrape_ratings_by_user(query, browser):
     Output: user_url, and rating_info
     '''
     rating_dict = {'username': [], 'rating': []}
+    user_url = []
     url = "https://www.mountainproject.com%s" % query
     html = get_html(url, browser)
     soup = BeautifulSoup(html, 'html.parser')
@@ -117,11 +118,15 @@ def scrape_ratings_by_user(query, browser):
 
 def scrape_user(query, browser):
     '''returns user page html'''
+    user_dict = {}
     url = "https://www.mountainproject.com%s" % query
     html = get_html(url, browser)
     soup = BeautifulSoup(html, 'html.parser')
     user_name = str(soup.find('h1').text)
-    return html, user_name
+    user_dict['html'] = html
+    user_dict['url'] = query
+    user_dict['username'] = user_name
+    return user_dict
 
 
 def search_route_page(grade):

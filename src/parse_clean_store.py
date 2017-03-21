@@ -6,6 +6,7 @@ import selenium.webdriver
 import random
 import pandas as pd
 import numpy as np
+import re
 
 def parse_route_page(_id, html):
     '''
@@ -120,57 +121,15 @@ def clean_average_rating(soup):
 	return average_rating
 
 
-def parse_user(html, _id):
+def parse_user_page(html, _id):
 	'''returns user info'''
 	soup = BeautifulSoup(html, 'html.parser')
 	# make user dict
-	user_dict = {'Personal:': np.nan,
-					'Favorite Climbs:': np.nan,
-					'Other Interests:': np.nan,
-					'Likes to climb:': np.nan,
-					'Trad:': np.nan,
-					'Sport:': np.nan,
-					'Aid:': np.nan,
-					'Ice:': np.nan}
-	
-	# make id
-	user_dict['id'] = _id
-	for item in soup.find('div',{'class': 'personalData'}).text.split('\n'):
-		for item2 in user_dict.keys():
-			if item2 in item:
-				item_list = item.split(item2)
-				if len(item_list) > 1:
-					user_dict[item2] = item_list[1]
-
-	user_dict['name'] = soup.find('h1').text.encode('utf-8')
-
-	side_bar = soup.select('div.roundedBottom')[0].text.split('\n') # side bar
-	user_list = ['Since: ', 'Visit: ', 'Rank: # ', 'Points: ', ' Compliments']
-	labels = ['member_since', 'last_vist', 'point_rank', 'total_points']
-	for item1 in side_bar:
-		for item2, key in zip(user_list, labels):
-			if item2 in item1:
-				item_list = item1.split(item2)
-				if len(item_list) > 1:
-					user_dict[key] = item_list[1]
-
-	user_dict['compliments'] = side_bar[11].split(' Compliments')[0]
-	return user_dict
-
-
-def parse_clean_user(html, _id):
-	'''returns user info'''
-	soup = BeautifulSoup(html, 'html.parser')
-	# make user dict
-	user_dict = {'Favorite Climbs:': np.nan,
-					'Other Interests:': np.nan}
-
-	for item in soup.find('div',{'class': 'personalData'}).text.split('\n'):
-		for item2 in user_dict.keys():
-			if item2 in item:
-				item_list = item.split(item2)
-				if len(item_list) > 1:
-					user_dict[item2] = item_list[1]
+	user_dict = {'favorite_climbs': np.nan, 'other_interests': np.nan}
+	personalData = soup.find('div',{'class': 'personalData'}).text.split('\n') 
+	for item in personalData:
+		user_dict = get_favorite_climbs(item, user_dict)
+		user_dict = grab_other_interests(item, user_dict)
 		user_dict = check_climb_types(item, user_dict)
 		user_dict = check_personal(item, user_dict)
 		user_dict = clean_likes_to_climb(item, user_dict)
@@ -178,11 +137,33 @@ def parse_clean_user(html, _id):
 	user_dict['id'] = _id
 	# get username
 	user_dict['name'] = soup.find('h1').text.encode('utf-8')
-
-	side_bar = soup.select('div.roundedBottom')[0].text.split('\n') # side bar
+	side_bar = soup.select('div.roundedBottom')[0].text.split('\n')
 	user_dict = clean_points_visits(side_bar, user_dict)
 	user_dict =  clean_compliments(side_bar[11], user_dict)
 	return user_dict
+
+
+def get_favorite_climbs(item, user_dict):
+	'''get favorite climbs from usrs'''
+	if 'Favorite Climbs:' in item:
+		item_list = item.split('Favorite Climbs:')
+		if len(item_list) > 1:
+			user_dict['favorite_climbs'] = item_list[1].lower()
+		else:
+			user_dict['favorite_climbs'] = np.nan
+	return user_dict
+
+
+def grab_other_interests(item, user_dict):
+	'''grabs other interests of user'''
+	if 'Other Interests:' in item:
+		item_list = item.split('Other Interests:')
+		if len(item_list) > 1:
+			user_dict['other_interests'] = item_list[1]
+		else:
+			user_dict['other_interests'] = np.nan
+	return user_dict
+
 
 def clean_points_visits(tag, user_dict):
 	'''cleans left bar'''
@@ -230,34 +211,61 @@ def clean_likes_to_climb(item, user_dict):
 				user_dict[key] = 0
 	return user_dict
 
-
+# redo check_personal
 def check_personal(item, user_dict):
 	'''get city, state, age, and sex'''
 	if 'Personal:' in item:
-		item_list = item.split('Personal:')
-		if len(item_list) > 1:
-			if 'Lives in' in item_list[1]:
-				personal_list = item_list[1].replace('Lives in', '').split(',')
-				city = personal_list[0].encode('utf-8')
-				user_dict['city'] = city
-				if len(personal_list) > 1:
-					state = personal_list[1].encode('utf-8')
-					user_dict['state'] = state
-				if 'years old' in item_list[1]:
-					age = item_list[1].split(' years old')[0]
-					age = int(age[::-1][0:2])
-					user_dict['age'] = age
-				if 'Female' in item_list[1]:
-					user_dict['Female'] = 1
-				else:
-					user_dict['Female'] = 0
-		else:
-			user_dict['city'] = np.nan
-			user_dict['state'] = np.nan
-			user_dict['age'] = np.nan
-			user_dict['Female'] = np.nan
-
+		user_dict['state'] = np.nan
+		user_dict['city'] = np.nan
+		user_dict['female'] = np.nan
+		user_dict['age'] = np.nan
+		personal = item.split('Personal:')
+		if 'Lives in' in personal[1]:
+			personal_list = personal[1].replace('Lives in', '').split(',')
+			city = personal_list[0].encode('utf-8')
+			user_dict['city'] = city
+			state = check_state(personal[1])
+			user_dict['state'] = state
+		# find age
+		age = find_age(personal[1])
+		user_dict['age'] = age
+		# find sex
+		user_dict['female'] = find_sex(personal[1])
 	return user_dict
+
+def find_sex(s):
+	'''find sex of user'''
+	s = s.lower()
+	if 'female' in s:
+		return 1
+	else:
+		return 0
+
+def find_age(s):
+	'''finds age in string'''
+	s = s.encode('utf-8')
+	matchObj = re.match( r'(.*) years old(.*?)', s)
+	if matchObj:
+		s_new = matchObj.group(1)
+		age = s_new[-2:]
+		return int(age)
+	else:
+		return np.nan
+
+def check_state(s):
+	'''check if word in states'''
+	with open('../data/states.txt') as f:
+		read_data = f.read()
+	state_list = read_data.replace('\t',' ').replace('\n', ' ').lower()
+	state_list = state_list.split(',')
+	s = s.lower().encode('utf-8').replace('lives in', '')
+	for i, state in enumerate(state_list):
+		if state in s:
+			if len(state) == 3:
+				return state
+			else:
+				state = state_list[i+1]
+				return state
 
 
 def check_climb_types(item, user_dict):

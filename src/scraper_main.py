@@ -8,7 +8,9 @@ from store_in_database import (add_to_route_html_database,
 								add_to_rating_database, 
 								add_to_user_html_database, 
 								add_route_link_database)
-
+import numpy as np
+import pandas as pd
+from pymongo import MongoClient
 
 if __name__ == "__main__":
 	# define grade search tuples 
@@ -33,7 +35,20 @@ if __name__ == "__main__":
 	    rating_dict['user_url'] = user_url
 	    rating_dict['route'] = route_name
 	    add_to_rating_database(rating_dict)
-	    for url in user_url:
-	    	user_dict = scrape_user(url, browser)
-	    	add_to_user_html_database(user_dict)
+
+	client = MongoClient('mongodb://localhost:27017/')
+	db = client.ratings_info
+	ratings_info = db.ratings_info
+	raw_data = ratings_info.find()
+	df_ratings = pd.DataFrame(list(raw_data))
+	
+	url_list = []
+	for row in df_ratings['user_url']:
+	    for url in row:
+	        url_list.append(url)
+
+	url_list_unique = np.unique(np.asarray(url_list))
+	for url in url_list_unique:
+	    user_dict = scrape_user(url, browser)
+	    add_to_user_html_database(user_dict)
 	browser.quit()

@@ -10,7 +10,7 @@ def get_html(url, browser, delay=3):
     '''Pulls page content and returns it'''
     browser.get(url)
     # make delay more random
-    delay = random.randint(2, 6)
+    #delay = random.randint(2, 6)
     time.sleep(delay)  # Wait a few seconds before getting the HTML source
     return browser.page_source
 
@@ -97,10 +97,10 @@ def scrape_ratings_by_user(query, browser):
     Input: query to ratings page and route_name
     Output: user_url, and rating_info
     '''
-    rating_dict = {'username': [], 'rating': []}
-    user_url = []
+    rating_dict = {'username': [], 'rating': [], 'user_url': []}
     url = "https://www.mountainproject.com%s" % query
     html = get_html(url, browser)
+    rating_dict['html'] = html
     soup = BeautifulSoup(html, 'html.parser')
     table_tag = soup.findAll('table')
     # the 4th table is the one with star votes
@@ -108,12 +108,12 @@ def scrape_ratings_by_user(query, browser):
         for i, column in enumerate(row.findAll('td')):
             if i % 2 == 0:
                 rating_dict['username'].append(column.text)  # username
-                user_url = str(column.find('a', href=True).\
-							get('href'))  # query for user url
+                rating_dict['user_url'].append(str(column.find('a', href=True).\
+                            get('href')))  # query for user url
             if i % 2 == 1:
                 rating_dict['rating'].append(\
-                	int(column.text.split('Html(')[1][0]) - 1) # number of stars
-    return user_url, rating_dict
+                    int(column.text.split('Html(')[1][0]) - 1) # number of stars
+    return rating_dict
 
 
 def scrape_user(query, browser):

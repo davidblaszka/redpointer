@@ -15,6 +15,14 @@ PORT = 5353
 def index():
     return render_template('home.html')
 
+@app.route('/submit', methods=['POST'])
+def submit():
+    user_data = request.json
+    age = user_data['age']
+    date_age = (age / 2.0) + 7
+    return jsonify({'lower_limit_age': date_age})  
+
+
 
 if __name__ == '__main__':
 

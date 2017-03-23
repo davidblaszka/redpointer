@@ -29,11 +29,14 @@ if __name__ == "__main__":
 	browser = selenium.webdriver.PhantomJS()#Firefox()
 	for route_href in route_href_list:
 	    star_url, route_html, route_name = scrape_route_page(route_href, browser)
-	    route_html_dict = {route_name_utf8: route_html}
+	    route_html_dict = {'route': route_name, 
+	    					'html': route_html,
+	    					'url': route_href}
 	    add_to_route_html_database(route_html_dict)
 	    user_url, rating_dict = scrape_ratings_by_user(star_url, browser)
 	    rating_dict['user_url'] = user_url
 	    rating_dict['route'] = route_name
+	    rating_dict['route_url'] = route_href 
 	    add_to_rating_database(rating_dict)
 
 	client = MongoClient('mongodb://localhost:27017/')

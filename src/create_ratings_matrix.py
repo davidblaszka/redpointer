@@ -1,6 +1,5 @@
 from pymongo import MongoClient
 import pandas as pd
-from parse_clean_store import (parse_route_page, parse_user_page, create_ratings_matrix)
 import json
 import numpy as np
 
@@ -38,6 +37,31 @@ def create_utility_matrix(df_ratings, df_users, df_routes):
 	        row += 1
 	return df_new
 
+def create_ratings_matrix(df):
+	'''creates a ratings matrix with route_id,user_id, and rating'''
+	route_id = 0
+	row = 0
+	username_list = []
+	df_new = pd.DataFrame(columns=['route_id',
+									'user_id',
+									'rating', 
+									'route', 
+									'username'])
+	for route, usernames, ratings in zip(df['route'], 
+	                                    df['username'],
+	                                    df['rating']):
+	    for username, rating in zip(usernames, ratings):
+	        if username not in username_list:
+	            username_list.append(username)
+	        df_new.loc[row,'route_id'] = route_id
+	        df_new.loc[row,'route'] = route
+	        df_new.loc[row,'username'] = username
+	        df_new.loc[row, 'user_id'] = username_list.index(username)
+	        df_new.loc[row, 'rating'] = rating
+	        row += 1
+	    route_id += 1
+	return df_new
+
 
 if __name__ == "__main__":
 	client = MongoClient('mongodb://localhost:27017/')
@@ -53,4 +77,9 @@ if __name__ == "__main__":
 	routes_df = df_routes[['name', 'id']]
 
 	# create utility matrix
-	create_utility_matrix(ratings_df, users_df, routes_df)
+	df = create_utility_matrix(ratings_df, users_df, routes_df)
+
+	# save to database
+	db = client.utility_matrix
+	for d in df.to_dict(orient='record'):
+		db.utility_matrix.insert_one(d)

@@ -1,9 +1,9 @@
-from pymongo import MongoClient
 import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 import numpy as np
+from sklearn.externals import joblib
 
 
 if __name__ == '__main__':
@@ -25,3 +25,6 @@ if __name__ == '__main__':
 									random_state=42)
 	gb.fit(X_train, y_train['rating'])
 	print 'RMSE: ', np.sqrt(mean_squared_error(y_test['rating'], gb.predict(X_test)))
+
+	# pickle model
+	joblib.dump(gb, '../pickle/gb_model.pkl') 

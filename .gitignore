@@ -2,4 +2,5 @@
 *.json
 *.pyc
 *.ipynb_checkpoints
-alsmodel/
+/src/alsmodel
+/src/metastore_db

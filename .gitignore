@@ -2,3 +2,4 @@
 *.json
 *.pyc
 *.ipynb_checkpoints
+alsmodel/

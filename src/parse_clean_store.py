@@ -9,44 +9,49 @@ import numpy as np
 import re
 
 def parse_route_page(_id, html):
-    '''
-    takes a soup to parse
-    returns dict of route info
-    '''
-    soup = BeautifulSoup(html, 'html.parser')
-    page_tag = soup.find('div', {'id':'rspCol800'})
-    # make route dict
-    route_dict = {}
-    # make id
-    route_dict['id'] = _id
-    name = page_tag.find('span', {'itemprop':'itemreviewed'}).text
-    route_dict['name'] = name.encode('utf-8')
-    route_dict['grade'] = clean_grade(page_tag)
-    route_dict['average_rating'] = clean_average_rating(soup)
-    
-    for i, td in enumerate(page_tag.find('table').findAll('td')): 
-        if td.text.split(':')[0] == 'Type':
-            route_type_dict = clean_route_type(page_tag.find('table').findAll('td')[i+1])
-            for key, value in zip(route_type_dict.keys(), route_type_dict.values()):
-            	route_dict[key] = value
-        elif td.text.split(':')[0] == 'Original':
-            o_grade = clean_original_grade(page_tag.find('table').findAll('td')[i+1])
-            route_dict['original_grade'] = o_grade
-        elif td.text.split(':')[0] == 'FA':
-            fa = page_tag.find('table').findAll('td')[i+1].text
-            route_dict['FA'] = fa
-        elif td.text.split(':')[0] == 'Season':
-            season = page_tag.find('table').findAll('td')[i+1].text
-            route_dict['season'] = season.encode('utf-8')
-        elif td.text.split(':')[0] == 'Page Views':
+	'''
+	takes a soup to parse
+	returns dict of route info
+	'''
+	soup = BeautifulSoup(html, 'html.parser')
+	page_tag = soup.find('div', {'id':'rspCol800'})
+	# make route dict
+	route_dict = {}
+	# make id
+	route_dict['id'] = _id
+	name = page_tag.find('span', {'itemprop':'itemreviewed'}).text
+	route_dict['name'] = name.encode('utf-8')
+	route_dict['grade'] = clean_grade(page_tag)
+	route_dict['average_rating'] = clean_average_rating(soup)
+
+	# find area
+	left_bar = soup.find('div', {'id': 'viewerLeftNavColContent'})
+	area = left_bar.text.replace('\n', '').split(' = []')[0].encode('utf-8')
+	route_dict['area'] = area
+
+	for i, td in enumerate(page_tag.find('table').findAll('td')): 
+	    if td.text.split(':')[0] == 'Type':
+	        route_type_dict = clean_route_type(page_tag.find('table').findAll('td')[i+1])
+	        for key, value in zip(route_type_dict.keys(), route_type_dict.values()):
+	        	route_dict[key] = value
+	    elif td.text.split(':')[0] == 'Original':
+	        o_grade = clean_original_grade(page_tag.find('table').findAll('td')[i+1])
+	        route_dict['original_grade'] = o_grade
+	    elif td.text.split(':')[0] == 'FA':
+	        fa = page_tag.find('table').findAll('td')[i+1].text
+	        route_dict['FA'] = fa
+	    elif td.text.split(':')[0] == 'Season':
+	        season = page_tag.find('table').findAll('td')[i+1].text
+	        route_dict['season'] = season.encode('utf-8')
+	    elif td.text.split(':')[0] == 'Page Views':
 			page_view = page_tag.find('table').findAll('td')[i+1].text
 			route_dict['page_views'] = int(page_view.encode('utf-8').replace(',',''))
-        elif td.text.split(':')[0] == 'Submitted By':
-            sb = clean_submitted_by(page_tag.find('table').findAll('td')[i+1])
-            route_dict['submitted_by'] = sb[0]
-            route_dict['submitted_on'] = sb[1]
+	    elif td.text.split(':')[0] == 'Submitted By':
+	        sb = clean_submitted_by(page_tag.find('table').findAll('td')[i+1])
+	        route_dict['submitted_by'] = sb[0]
+	        route_dict['submitted_on'] = sb[1]
 
-    return route_dict
+	return route_dict
 
 
 def clean_first_ascent(tag):

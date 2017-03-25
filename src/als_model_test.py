@@ -45,6 +45,31 @@ def als_validation(y_train, y_test):
 	print "RMSE: ", np.sqrt(sum(predictions_df['squared_error']) / len(predictions_df))
 
 
+def als_final_model(y_data):
+	'''computes the als model on all data'''
+	# Convert to a Spark DataFrame
+	y_data_spark = spark.createDataFrame(y_data)
+
+	# call als model
+	als = ALS(userCol='user_id',
+			itemCol='route_id',
+			ratingCol='rating',
+			nonnegative=True,
+			regParam=0.1,
+			rank=10
+			)
+
+	# fit model
+	recommender = als.fit(y_data_spark)
+
+	#save model
+	path = '../data/alsmodel_final'
+	recommender.save(path)
+	print '***********'
+	print "alsmodel_final created"
+	print '***********'
+
+
 if __name__ == '__main__':
 
 	# Build our Spark Session and Context
@@ -62,3 +87,5 @@ if __name__ == '__main__':
 	X_train, X_test, y_train, y_test = train_test_split(x_data, y_data, random_state=42)
 	# run validation model
 	als_validation(y_train, y_test)
+	# run on all data
+	als_final_model(y_data)

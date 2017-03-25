@@ -13,25 +13,14 @@ from sklearn.preprocessing import normalize
 from sklearn.metrics import pairwise_distances
 from scipy.spatial.distance import cosine
 
-def als_model(y_train, y_test, load=True):
+def als_model(y_train, y_test):
 	'''uses sparks als model to predict ratings'''
 	# Convert to a Spark DataFrame
 	y_train_spark = spark.createDataFrame(y_train)
 	y_test_spark = spark.createDataFrame(y_test)
 	# make als_model
-	path = 'alsmodel'
-	if load == False:
-		als_model = ALS(userCol='user_id',
-						itemCol='route_id',
-						ratingCol='rating',
-						nonnegative=True,
-						regParam=0.1,
-						rank=10
-						)
-		recommender = als_model.fit(y_train_spark)
-		recommender.save(path)
-	else:
-		recommender = ALSModel.load(path)
+	path = '../data/alsmodel_val'
+	recommender = ALSModel.load(path)
 	# Make predictions for the whole test set
 	predictions = recommender.transform(y_test_spark)
 	return predictions.toPandas()
@@ -39,7 +28,7 @@ def als_model(y_train, y_test, load=True):
 
 def gradient_boosting(X_test):
 	'''load gradient boosting model'''
-	gb = joblib.load('../pickle/gb_model.pkl') 
+	gb = joblib.load('../pickle/gb_model_val.pkl') 
 	return gb.predict(X_test)
 
 
@@ -56,7 +45,7 @@ def item_by_item_matrix():
 	return cos_sim, routes_id
 
 
-def rmse_item_by_item(y_train, y_test, cos_sim, routes_id):
+def item_by_item(y_train, y_test, cos_sim, routes_id):
 	'''use 5 most similiar route's ratigns to make prediction'''
 	item_by_item_pred = [] 
 	n = 5
@@ -87,8 +76,11 @@ def weighted(X_test, als_pred_df, item_by_item_pred):
 		rmse_list.append(rmse)
 	# grab constant that lowers rmse
 	c = np.linspace(100.0,110.0, 100)[rmse_list.index(min(rmse_list))]
-	# return wight
-	return np.array((2.0 / (1 + np.exp(-c * normalized_rating_count))) - 1)
+	# return weights
+	alpha = np.array((2.0 / (1 + np.exp(-c * normalized_rating_count))) - 1)
+	# save weight
+	np.save('../data/alpha', alpha)
+	return alpha
 
 
 def weighted2(als_pred_df, alpha, item_by_item_pred, gb_pred_array):
@@ -102,19 +94,22 @@ def weighted2(als_pred_df, alpha, item_by_item_pred, gb_pred_array):
 	    predictions_df['squared_error'] = (predictions_df['rating'] - predictions_df['weighted2'])**2
 	    rmse = np.sqrt(sum(predictions_df['squared_error']) / len(predictions_df))
 	    rmse_list.append(rmse)
+	beta = np.linspace(0.0, 1.0, 100)[rmse_list.index(min(rmse_list))]
+	# save weight
+	np.save('../data/beta', beta)
 	return predictions_df, min(rmse_list)
 
 
 def ensemble(y_train, y_test, X_test):
 	'''ensemble models'''
 	# make als_model predictions
-	als_pred_df = als_model(y_train, y_test, load=True)
+	als_pred_df = als_model(y_train, y_test)
 	# get gradient boosted predictions
 	gb_pred_array = gradient_boosting(X_test)
 	# get cos_sim matrix
 	cos_sim, routes_id = item_by_item_matrix()
 	# get item_by_item predictions
-	item_by_item_pred = rmse_item_by_item(y_train, y_test, cos_sim, routes_id)
+	item_by_item_pred = item_by_item(y_train, y_test, cos_sim, routes_id)
 	# fill nulls in als model with item_by item prediction
 	null_ind = pd.isnull(als_pred_df).any(1).nonzero()[0]
 	als_pred_df.ix[null_ind, 'prediction'] = np.array(item_by_item_pred)[null_ind]

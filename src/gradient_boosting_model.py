@@ -8,6 +8,7 @@ from sklearn.model_selection import GridSearchCV
 
 
 def gb_all_data(x_data, y_data):
+	'''run gradient boosting model on all data'''
 	gb = GradientBoostingRegressor(min_samples_leaf=3,
 									learning_rate=0.01,
 									max_depth=2,
@@ -17,6 +18,9 @@ def gb_all_data(x_data, y_data):
 	gb.fit(x_data, y_data['rating'])
 	# pickle model
 	joblib.dump(gb, '../pickle/gb_model_all_data.pkl')
+	print '*************'
+	print 'Ran gradient boosting model on all data'
+	print '*************'
 
 
 def gb_train(x_data, y_data):
@@ -32,7 +36,7 @@ def gb_train(x_data, y_data):
 	print 'RMSE: ', np.sqrt(mean_squared_error(y_test['rating'], gb.predict(X_test)))
 
 	# pickle model
-	joblib.dump(gb, '../pickle/gb_model.pkl') 	
+	joblib.dump(gb, '../pickle/gb_model_val.pkl') 	
 	'''
 	grid_params = {'learning_rate': [ 0.001, 0.01],
                'max_features': ['sqrt', 'log2', None],

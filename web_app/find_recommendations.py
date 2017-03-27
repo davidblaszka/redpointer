@@ -104,7 +104,7 @@ def ensemble(ratings_data, routes_df, user_df):
     item_by_item_pred = item_by_item(ratings_data, cos_sim, routes_id)
     # get ensemble predictions
     predictions_df = weighted2(als_pred_df, item_by_item_pred, gb_pred_array, routes_df)
-    return predictions_df, cos_sim
+    return predictions_df
     
 
 def get_user_info(user_name):
@@ -127,4 +127,4 @@ def recommender(user_name):
     ratings_data['user_id'] = (0 * routes_df['id']) + user_id 
     ratings_data['route_id'] = routes_df['id']
     recs_df = ensemble(ratings_data, routes_df, user_df)
-    return recs_df.sort_values('final_pred', ascending=False).head(6), cos_sim
+    return recs_df.sort_values('final_pred', ascending=False).head(6)

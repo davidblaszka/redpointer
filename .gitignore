@@ -3,4 +3,4 @@
 *.pyc
 *.ipynb_checkpoints
 /src/metastore_db
-
+*.swp

@@ -1,8 +1,5 @@
-from pymongo import MongoClient
 import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
 import numpy as np
 import pyspark
 from pyspark.sql.types import *
@@ -12,6 +9,7 @@ from sklearn.externals import joblib
 from sklearn.preprocessing import normalize
 from sklearn.metrics import pairwise_distances
 from scipy.spatial.distance import cosine
+from pymongo import MongoClient
 
 def als_model(data):
     # Build our Spark Session and Context
@@ -55,31 +53,43 @@ def item_by_item_matrix():
     return cos_sim, routes_id
 
 
-def item_by_item(y_data, cos_sim, routes_id):
+def item_by_item(ratings_data, cos_sim, routes_id):
     '''use 5 most similiar route's ratigns to make prediction'''
+    # load all routes
+    client = MongoClient()
+    db = client.routes_updated
+    routes = db.routes
     item_by_item_pred = [] 
     n = 5
-    for _id in y_data['route_id']:
+    for _id in ratings_data['route_id']:
         # find the similar routes
         index = routes_id[routes_id == _id].index.tolist()[0]
         arr = cos_sim[index]
         similar_routes = np.asarray(routes_id)[arr.argsort()[-(n+1):][::-1][1:]]
         # average the five routes together to get rating
-        pred = y_data[y_data['route_id'].isin(similar_routes)]['rating']
-        mean_rating = pred.mean()
+        routes_info = list(routes.find({'id':{'$in': similar_routes.tolist()}}))
+        pred = []
+        for route in routes_info:
+            pred.append(route['average_rating'])
+        mean_rating = np.mean(pred)
         item_by_item_pred.append(mean_rating) 
     return item_by_item_pred
 
 
 
-def weighted2(als_pred_df, alpha, item_by_item_pred, gb_pred_array):
+def weighted2(als_pred_df, item_by_item_pred, gb_pred_array, routes_df):
     '''get ensemble predictions'''
     predictions_df = als_pred_df
-    # load alpha and beta weights
-    alpha = np.load('../data/beta.npy')
+    # load weights
+    c = np.load('../data/c.npy')
+    # get review count
+    normalized_rating_count = routes_df['num_reviews'] / float(routes_df['num_reviews'].max())
+    alpha = np.array((2.0 / (1 + np.exp(-c * normalized_rating_count))) - 1)
     beta = np.load('../data/beta.npy')
-    predictions_df['weighted'] = alpha *  predictions_df['prediction'] + (1 - alpha) * item_by_item_pred
-    predictions_df['final_pred'] = (beta * predictions_df['weighted']) + ((1 - beta) * pd.DataFrame(gb_pred_array)[0])
+    predictions_df['weighted'] = alpha *  predictions_df['prediction'] + \
+                                (1 - alpha) * np.array(item_by_item_pred)
+    predictions_df['final_pred'] = (beta * predictions_df['weighted']) + \
+                                ((1 - beta) * pd.DataFrame(gb_pred_array)[0])
     return predictions_df
 
 
@@ -92,9 +102,9 @@ def ensemble(ratings_data, routes_df, user_df):
     # get cos_sim matrix
     cos_sim, routes_id = item_by_item_matrix()
     # get item_by_item predictions
-    item_by_item_pred = item_by_item(y_data, cos_sim, routes_id)
+    item_by_item_pred = item_by_item(ratings_data, cos_sim, routes_id)
     # get ensemble predictions
-    predictions_df = weighted2(als_pred_df, alpha, item_by_item_pred, gb_pred_array)
+    predictions_df = weighted2(als_pred_df, item_by_item_pred, gb_pred_array, routes_df)
     return predictions_df.head(6)
 
 
@@ -112,13 +122,13 @@ def recommender(user_name):
     '''given a username, returns top 6 recommendations'''
     user_df, user_id = get_user_info(user_name)
     # load data frame from csv
-    routes_df = pd.read_csv("routes_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
+    routes_df = pd.read_csv("../data/routes_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
     # make a dataframe with all the routes and only the user_id
     ratings_data = pd.DataFrame(columns=['route_id', 'user_id'])
-    user_id = user_info()
     ratings_data['user_id'] = (0 * routes_df['id']) + user_id 
     ratings_data['route_id'] = routes_df['id']
     recs_df = ensemble(ratings_data, routes_df, user_df)
-    return recs_Df
+    return recs_df.sort_values('final_pred', ascending=False).head(6)
 
-    
+
+print recommender('David Blaszka')

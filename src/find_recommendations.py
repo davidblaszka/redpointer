@@ -105,8 +105,8 @@ def ensemble(ratings_data, routes_df, user_df):
     item_by_item_pred = item_by_item(ratings_data, cos_sim, routes_id)
     # get ensemble predictions
     predictions_df = weighted2(als_pred_df, item_by_item_pred, gb_pred_array, routes_df)
-    return predictions_df.head(6)
-
+    return predictions_df
+    
 
 def get_user_info(user_name):
     # load data frame from csv

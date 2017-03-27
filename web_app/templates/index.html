@@ -97,15 +97,15 @@
             <div class="row no-gutter popup-gallery">
 
                 <div class="col-lg-4 col-sm-6">
-                    <a href="static/img/portfolio/fullsize/29.jpg" class="portfolio-box">
-                        <img src="static/img/portfolio/thumbnails/5.jpg" class="img-responsive" alt="">
+                    <a href='https://www.mountainproject.com' + routes.iloc[0]['route_url']}} class="portfolio-box">
+                        <img src="static/img/portfolio/thumbnails/outerspace.jpg" class="img-responsive" alt="">
                         <div class="portfolio-box-caption">
                             <div class="portfolio-box-caption-content">
                                 <div class="project-name">
-                                    {{routes[0]['name']}}
+                                    {{routes.iloc[0]['name']}}
                                 </div>
                                 <div class="project-category text-faded">
-                                    {{routes[0]['grade']}} grade
+                                    {{routes.iloc[0]['grade']}} grade
                                 </div>
                             </div>
                         </div>
@@ -114,14 +114,14 @@
 
                 <div class="col-lg-4 col-sm-6">
                     <a href="static/img/portfolio/fullsize/79.jpg" class="portfolio-box">
-                        <img src="static/img/portfolio/thumbnails/6.jpg" class="img-responsive" alt="">
+                        <img src="static/img/portfolio/thumbnails/davisholland.jpg" class="img-responsive" alt="">
                         <div class="portfolio-box-caption">
                             <div class="portfolio-box-caption-content">
                                 <div class="project-name">
-                                    {{routes[1]['name']}}
+                                    {{routes.iloc[1]['name']}}
                                 </div>
                                 <div class="project-category text-faded">
-                                    {{routes[1]['grade']}} grade
+                                    {{routes.iloc[1]['grade']}} grade
                                 </div>
                             </div>
                         </div>
@@ -130,14 +130,14 @@
 
                 <div class="col-lg-4 col-sm-6">
                     <a href="static/img/portfolio/fullsize/81.jpg" class="portfolio-box">
-                        <img src="static/img/portfolio/thumbnails/4.jpg" class="img-responsive" alt="">
+                        <img src="static/img/portfolio/thumbnails/westridge.jpg" class="img-responsive" alt="">
                         <div class="portfolio-box-caption">
                             <div class="portfolio-box-caption-content">
                                 <div class="project-name">
-                                    {{routes[2]['name']}}
+                                    {{routes.iloc[2]['name']}}
                                 </div>
                                 <div class="project-category text-faded">
-                                    {{routes[2]['grade']}} grade
+                                    {{routes.iloc[2]['grade']}} grade
                                 </div>
                             </div>
                         </div>
@@ -145,14 +145,14 @@
                 </div>
                 <div class="col-lg-4 col-sm-6">
                     <a href="static/img/portfolio/fullsize/86.jpg" class="portfolio-box">
-                        <img src="static/img/portfolio/thumbnails/3.jpg" class="img-responsive" alt="">
+                        <img src="static/img/portfolio/thumbnails/godzilla.jpg" class="img-responsive" alt="">
                         <div class="portfolio-box-caption">
                             <div class="portfolio-box-caption-content">
                                 <div class="project-name">
-                                    {{routes[3]['name']}}
+                                    {{routes.iloc[3]['name']}}
                                 </div>
                                 <div class="project-category text-faded">
-                                    {{routes[3]['grade']}} grade
+                                    {{routes.iloc[3]['grade']}} grade
                                 </div>
                             </div>
                         </div>
@@ -160,14 +160,14 @@
                 </div>
                 <div class="col-lg-4 col-sm-6">
                     <a href="static/img/portfolio/fullsize/89.jpg" class="portfolio-box">
-                        <img src="static/img/portfolio/thumbnails/1.jpg" class="img-responsive" alt="">
+                        <img src="static/img/portfolio/thumbnails/northridge.jpg" class="img-responsive" alt="">
                         <div class="portfolio-box-caption">
                             <div class="portfolio-box-caption-content">
                                 <div class="project-name">
-                                    {{routes[4]['name']}}
+                                    {{routes.iloc[4]['name']}}
                                 </div>
                                 <div class="project-category text-faded">
-                                    {{routes[4]['grade']}} grade
+                                    {{routes.iloc[4]['grade']}} grade
                                 </div>
                             </div>
                         </div>
@@ -175,14 +175,14 @@
                 </div>
                 <div class="col-lg-4 col-sm-6">
                     <a href="static/img/portfolio/fullsize/28.jpg" class="portfolio-box">
-                        <img src="static/img/portfolio/thumbnails/2.jpg" class="img-responsive" alt="">
+                        <img src="static/img/portfolio/thumbnails/stanleyburgner.jpg" class="img-responsive" alt="">
                         <div class="portfolio-box-caption">
                             <div class="portfolio-box-caption-content">
                                 <div class="project-name">
-                                    {{routes[5]['name']}}
+                                    {{routes.iloc[5]['name']}}
                                 </div>
                                 <div class="project-category text-faded">
-                                    {{routes[5]['grade']}} grade
+                                    {{routes.iloc[5]['grade']}} grade
                                 </div>
                             </div>
                         </div>
@@ -220,25 +220,25 @@
                         <i class="fa fa-4x fa-gears text-primary sr-icons"></i>
                         <h3>Python</h3>
                         </a>
-                        <p class="text-muted">Requests + BeautifulSoup</br>MongoDB + PyMongo</br>Pandas</br>Spark</br>Flask</p>
+                        <p class="text-muted">Requests + BeautifulSoup</br>MongoDB + PyMongo</br>Pandas</br>Flask</br>scikit-learn</p>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 text-center">
                     <div class="service-box">
                       <a href="http://jadetabony.com/2016/08/24/sentiment-analysis-rec-the-trail/">
                         <i class="fa fa-4x fa-heart text-primary sr-icons"></i>
-                        <h3>Sentiment Analysis</h3>
+                        <h3>Machine Learning</h3>
                         </a>
-                        <p class="text-muted">TextBlob</br>Turi GraphLab</br>Sentiment Analysis</br>Trained on Scraped Data</p>
+                        <p class="text-muted">Gradient Boosting</br>Cosine Similarity</br>Collaborative filtering</br>Item Content Recommender</p>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 text-center">
                     <div class="service-box">
                       <a href="https://jadetabony.com/2016/09/11/recommender-systems-rec-the-trail/">
                         <i class="fa fa-4x fa-newspaper-o text-primary sr-icons"></i>
-                        <h3>Turi GraphLab</h3>
+                        <h3>Apache Spark</h3>
                       </a>
-                        <p class="text-muted"> Ranking Factorization Model</br>Item Content Recommender</br>Finding latent patterns in the </br>forest of ratings.</p>
+                        <p class="text-muted"> Alternating Least Squares Model</br>Collaborative filtering</p>
                     </div>
                 </div>
             </div>

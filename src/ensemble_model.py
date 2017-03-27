@@ -79,7 +79,7 @@ def weighted(X_test, als_pred_df, item_by_item_pred):
 	# return weights
 	alpha = np.array((2.0 / (1 + np.exp(-c * normalized_rating_count))) - 1)
 	# save weight
-	np.save('../data/alpha', alpha)
+	np.save('../data/c', c)
 	return alpha
 
 

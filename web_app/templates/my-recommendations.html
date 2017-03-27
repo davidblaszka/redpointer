@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Washington Trail Recommender</title>
+    <title>MountainProject Recommender</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -42,7 +42,7 @@
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
                     <span class="sr-only">Toggle navigation</span> Menu <i class="fa fa-bars"></i>
                 </button>
-                <a class="navbar-brand page-scroll" href="/">Rec The Trail</a>
+                <a class="navbar-brand page-scroll" href="/">RedPointer</a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -73,7 +73,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 text-center">
-                    <h2 class="section-heading">Hikes you might like</h2>
+                    <h2 class="section-heading">Routes you might like</h2>
                       <hr class="primary">
                 </div>
             </div>
@@ -82,21 +82,17 @@
                 <div class="row">
                   <table class="table" id="recommendations-table">
                                <tr>
-                                   <th id='recommendations-table'>Hike Name</th>
-                                   <th id='recommendations-table'>Hike Region</th>
-                                   <th id='recommendations-table'>Total Distance (miles)</th>
-                                   <th id='recommendations-table'>Elevation Gain (ft)</th>
-                                   <th id='recommendations-table'>Drive Time from Seattle (minutes)</th>
-                                   <th id='recommendations-table'>Pass Required?</th>
+                                   <th id='recommendations-table'>Route Name</th>
+                                   <th id='recommendations-table'>Route Region</th>
+                                   <th id='recommendations-table'>Grade</th>
+                                   <th id='recommendations-table'>Average Rating</th>
                                </tr>
                                {% for r in recs %}
                                <tr>
-                                   <td><b><a href={{r.url}} target="_blank">{{r.name}}</a></b></td>
-                                   <td>{{r.region}}</td>
-                                   <td>{{r.total_dist}}</td>
-                                   <td>{{r.elevation}}</td>
-                                   <td>{{r.time_from_seattle}}</td>
-                                   <td>{{r.pass_required}}</td>
+                                   <td><b><a href={{'https://www.mountainproject.com' + r['route_url']}} target="_blank">{{r['name']}}</a></b></td> 
+                                   <td>{{r['area']}}</td>
+                                   <td>{{r['grade']}}</td>
+                                   <td>{{r['average_rating']}}</td>
                                </tr>
                                {% endfor %}
                        </table>
@@ -106,57 +102,57 @@
       </section>
 
 
-     <section id="about">
-         <div class="container">
-             <div class="row">
-                 <div class="col-lg-12 text-center">
-                     <h2 class="section-heading">Behind the Project</h2>
-                     <p class="section-heading">Interested in learning more about any step?  Click on the image!</p>
-                     <hr class="primary">
-                 </div>
-             </div>
-         </div>
-         <div class="container">
-             <div class="row">
-                 <div class="col-lg-3 col-md-6 text-center">
-                     <div class="service-box">
-                       <a href="https://github.com/Jadetabony/wta_hikes/blob/project/CrispDM.md">
-                         <i class="fa fa-4x fa-diamond text-primary sr-icons"></i>
-                         <h3>CRISP-DM</h3>
-                         </a>
-                         <p class="text-muted">Business Understanding</br>Data Understanding</br>Data Preparation </br>Modeling</br> Evaluation</br>Deployment</p>
-                     </div>
-                 </div>
-                 <div class="col-lg-3 col-md-6 text-center">
-                     <div class="service-box">
-                       <a href="https://github.com/Jadetabony/wta_hikes/tree/project">
-                         <i class="fa fa-4x fa-gears text-primary sr-icons"></i>
-                         <h3>Python</h3>
-                         </a>
-                         <p class="text-muted">Requests + BeautifulSoup</br>MongoDB + PyMongo</br>Pandas</br>Scikit-Learn</br>Plotly</br>Flask</p>
-                     </div>
-                 </div>
-                 <div class="col-lg-3 col-md-6 text-center">
-                     <div class="service-box">
-                       <a href="http://jadetabony.com/2016/08/24/sentiment-analysis-rec-the-trail/">
-                         <i class="fa fa-4x fa-heart text-primary sr-icons"></i>
-                         <h3>Sentiment Analysis</h3>
-                         </a>
-                         <p class="text-muted">TextBlob</br>Turi GraphLab</br>Sentiment Analysis</br>Trained on Scraped Data</p>
-                     </div>
-                 </div>
-                 <div class="col-lg-3 col-md-6 text-center">
-                     <div class="service-box">
-                       <a href="https://jadetabony.com/2016/09/11/recommender-systems-rec-the-trail/">
-                         <i class="fa fa-4x fa-newspaper-o text-primary sr-icons"></i>
-                         <h3>Turi GraphLab</h3>
-                       </a>
-                         <p class="text-muted"> Ranking Factorization Model</br>Item Content Recommender</br>Finding latent patterns in the </br>forest of ratings.</p>
-                     </div>
-                 </div>
-             </div>
-         </div>
-     </section>
+    <section id="about">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2 class="section-heading">Behind the Project</h2>
+                    <p class="section-heading">Interested in learning more about any step?  Click on the image!</p>
+                    <hr class="primary">
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 text-center">
+                    <div class="service-box">
+                      <a href="https://github.com/Jadetabony/wta_hikes/blob/project/CrispDM.md">
+                        <i class="fa fa-4x fa-diamond text-primary sr-icons"></i>
+                        <h3>CRISP-DM</h3>
+                        </a>
+                        <p class="text-muted">Business Understanding</br>Data Understanding</br>Data Preparation </br>Modeling</br> Evaluation</br>Deployment</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 text-center">
+                    <div class="service-box">
+                      <a href="https://github.com/davidblaszka/Rock-Climbing-Route-Recommender">
+                        <i class="fa fa-4x fa-gears text-primary sr-icons"></i>
+                        <h3>Python</h3>
+                        </a>
+                        <p class="text-muted">Requests + BeautifulSoup</br>MongoDB + PyMongo</br>Pandas</br>Flask</br>Scikit-Learn</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 text-center">
+                    <div class="service-box">
+                      <a href="http://jadetabony.com/2016/08/24/sentiment-analysis-rec-the-trail/">
+                        <i class="fa fa-4x fa-heart text-primary sr-icons"></i>
+                        <h3>Machine Learning</h3>
+                        </a>
+                        <p class="text-muted">Gradient Boosting</br>Cosine Similarity</br>Collaborative filtering</br>Item Content Recommender</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 text-center">
+                    <div class="service-box">
+                      <a href="https://jadetabony.com/2016/09/11/recommender-systems-rec-the-trail/">
+                        <i class="fa fa-4x fa-newspaper-o text-primary sr-icons"></i>
+                        <h3>Apache Spark</h3>
+                      </a>
+                        <p class="text-muted"> Alternating Least Squares Model</br>Collaborative filtering</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
 
 
@@ -180,7 +176,7 @@
                           <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                               <ul class="list-inline text-center">
                                   <li>
-                                      <a href="https://www.linkedin.com/in/jadetabony">
+                                      <a href="https://www.linkedin.com/in/davidblaszka/">
                                           <span class="fa-stack fa-lg">
                                               <i class="fa fa-circle fa-stack-2x"></i>
                                               <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
@@ -188,7 +184,7 @@
                                       </a>
                                   </li>
                                   <li>
-                                      <a href="https://www.instagram.com/theclutteredgearroom/">
+                                      <a href="https://www.instagram.com/_root_man/">
                                           <span class="fa-stack fa-lg">
                                               <i class="fa fa-circle fa-stack-2x"></i>
                                               <i class="fa fa-instagram fa-stack-1x fa-inverse"></i>
@@ -196,15 +192,7 @@
                                       </a>
                                   </li>
                                   <li>
-                                      <a href="https://twitter.com/TrailWonderland">
-                                          <span class="fa-stack fa-lg">
-                                              <i class="fa fa-circle fa-stack-2x"></i>
-                                              <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
-                                          </span>
-                                      </a>
-                                  </li>
-                                  <li>
-                                      <a href="https://github.com/jadetabony">
+                                      <a href="https://github.com/davidblaszka">
                                           <span class="fa-stack fa-lg">
                                               <i class="fa fa-circle fa-stack-2x"></i>
                                               <i class="fa fa-github fa-stack-1x fa-inverse"></i>

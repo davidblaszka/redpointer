@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Washington Trail Recommender</title>
+    <title>MountainProject Recommender</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -43,7 +43,7 @@
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
                     <span class="sr-only">Toggle navigation</span> Menu <i class="fa fa-bars"></i>
                 </button>
-                <a class="navbar-brand page-scroll" href="/">Rec the Trail</a>
+                <a class="navbar-brand page-scroll" href="/">RedPointer</a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -73,8 +73,8 @@
       <div class="container">
           <div class="row">
               <div class="col-lg-12 text-center">
-                  <h2 class="section-heading">Input a hike that you liked</h2>
-                  <p class="section-heading">If you already have a WTA username, list it for better recommendations.  </br>If not, leave username blank and input a hike that you liked.</p>
+                  <h2 class="section-heading">Input a route that you liked</h2>
+                  <p class="section-heading">If you already have a MountainProject username, list it for better recommendations.  </br>If not, leave username blank and input a route that you liked.</p>
                   <hr class="primary">
               </div>
           </div>
@@ -83,31 +83,18 @@
               <div class="row">
                 <form action="my-recommendations" method="GET" id='hikeform'>
                      <div class="form-group col-lg-4">
-                         <label class='rating-form'>Hiker Username</label>
+                         <label class='rating-form'>Climber Username</label>
                          <input type="text" name="username" class="form-control">
                       </br>
-                         <label class='rating-form' >Hike Name</label>
+                         <label class='rating-form' >Route Name</label>
                        </br>
-                         <input list='hike-name' name='hike-name'>
-                            <datalist id='hike-name'>
-                              {% for h in hikes %}
-                              <option value="{{h.name}}">{{h.name}}</option>
+                         <input list='route-name' name='route-name'>
+                            <datalist id='route-name'>
+                              {% for r in routes %}
+                              <option value="{{r.name}}">{{r.name}}</option>
                               {% endfor %}
                             </datalist>
                           </br>
-                         <label class='rating-form' >Trip Report</label>
-                          </br>
-                            <textarea name="tripReport" rows="10" cols="80"></textarea>
-                            </br>
-                         <label class='rating-form'>Hike Star Rating</label>
-                         </br>
-                         <div class="rating">
-                              <span><input type="radio" name="rating" id="str5" value="5"><label for="str5"></label></span>
-                              <span><input type="radio" name="rating" id="str4" value="4"><label for="str4"></label></span>
-                              <span><input type="radio" name="rating" id="str3" value="3"><label for="str3"></label></span>
-                              <span><input type="radio" name="rating" id="str2" value="2"><label for="str2"></label></span>
-                              <span><input type="radio" name="rating" id="str1" value="1"><label for="str1"></label></span>
-                          </div>
                           <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
                           <script type="text/javascript">
 
@@ -146,34 +133,35 @@
                 </div>
                 <div class="col-lg-3 col-md-6 text-center">
                     <div class="service-box">
-                      <a href="https://github.com/Jadetabony/wta_hikes/tree/project">
+                      <a href="https://github.com/davidblaszka/Rock-Climbing-Route-Recommender">
                         <i class="fa fa-4x fa-gears text-primary sr-icons"></i>
                         <h3>Python</h3>
                         </a>
-                        <p class="text-muted">Requests + BeautifulSoup</br>MongoDB + PyMongo</br>Pandas</br>Scikit-Learn</br>Plotly</br>Flask</p>
+                        <p class="text-muted">Requests + BeautifulSoup</br>MongoDB + PyMongo</br>Pandas</br>Flask</br>Scikit-Learn</p>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 text-center">
                     <div class="service-box">
                       <a href="http://jadetabony.com/2016/08/24/sentiment-analysis-rec-the-trail/">
                         <i class="fa fa-4x fa-heart text-primary sr-icons"></i>
-                        <h3>Sentiment Analysis</h3>
+                        <h3>Machine Learning</h3>
                         </a>
-                        <p class="text-muted">TextBlob</br>Turi GraphLab</br>Sentiment Analysis</br>Trained on Scraped Data</p>
+                        <p class="text-muted">Gradient Boosting</br>Cosine Similarity</br>Collaborative filtering</br>Item Content Recommender</p>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6 text-center">
                     <div class="service-box">
                       <a href="https://jadetabony.com/2016/09/11/recommender-systems-rec-the-trail/">
                         <i class="fa fa-4x fa-newspaper-o text-primary sr-icons"></i>
-                        <h3>Turi GraphLab</h3>
+                        <h3>Apache Spark</h3>
                       </a>
-                        <p class="text-muted"> Ranking Factorization Model</br>Item Content Recommender</br>Finding latent patterns in the </br>forest of ratings.</p>
+                        <p class="text-muted"> Alternating Least Squares Model</br>Collaborative filtering</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
 
 
     <aside class="bg-dark">
@@ -196,7 +184,7 @@
                           <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                               <ul class="list-inline text-center">
                                   <li>
-                                      <a href="https://www.linkedin.com/in/jadetabony">
+                                      <a href="https://www.linkedin.com/in/davidblaszka/">
                                           <span class="fa-stack fa-lg">
                                               <i class="fa fa-circle fa-stack-2x"></i>
                                               <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
@@ -204,7 +192,7 @@
                                       </a>
                                   </li>
                                   <li>
-                                      <a href="https://www.instagram.com/theclutteredgearroom/">
+                                      <a href="https://www.instagram.com/_root_man/">
                                           <span class="fa-stack fa-lg">
                                               <i class="fa fa-circle fa-stack-2x"></i>
                                               <i class="fa fa-instagram fa-stack-1x fa-inverse"></i>
@@ -212,15 +200,7 @@
                                       </a>
                                   </li>
                                   <li>
-                                      <a href="https://twitter.com/TrailWonderland">
-                                          <span class="fa-stack fa-lg">
-                                              <i class="fa fa-circle fa-stack-2x"></i>
-                                              <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
-                                          </span>
-                                      </a>
-                                  </li>
-                                  <li>
-                                      <a href="https://github.com/jadetabony">
+                                      <a href="https://github.com/davidblaszka">
                                           <span class="fa-stack fa-lg">
                                               <i class="fa fa-circle fa-stack-2x"></i>
                                               <i class="fa fa-github fa-stack-1x fa-inverse"></i>

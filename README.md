@@ -71,4 +71,8 @@ python create_ratings_matrix.py
 
 1) MountainProject.com
 
-2) Tabony, Jade, https://github.com/Jadetabony/wta_hikes
+2) Koren, Yehuda, Robert Bell, and Chris Volinsky. "Matrix factorization techniques for recommender systems." Computer 42.8 (2009).
+
+3) Leskovec, Jure, Anand Rajaraman, and Jeffrey David Ullman. Mining of massive datasets. Cambridge University Press, 2014.
+
+3) Tabony, Jade. https://github.com/Jadetabony/wta_hikes

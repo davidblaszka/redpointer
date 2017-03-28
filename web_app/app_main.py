@@ -14,8 +14,9 @@ PORT = 8080
 @app.route('/')
 def root():
 	# find top routes in washington
-	df = pd.DataFrame(list(routes.find())).sort_values('page_views', ascending=False).head(20)
-	recs = df.sort_values('average_rating', ascending=False).head(6)
+	df = pd.DataFrame(list(routes.find()))
+	df_sorted= df.sort_values('page_views', ascending=False).head(20)
+	recs = df_sorted.sort_values('average_rating', ascending=False).head(6)
 	return render_template('index.html', routes=recs)
 
 
@@ -33,33 +34,14 @@ def getNewRatings():
 
 @app.route('/my-recommendations', methods=['POST', 'GET'])
 def getRecs():
-	route_name =  request.args.get('route-name')
-	route_id = list(routes.find({'name': route_name}))[0]['id']
-	if request.args.get('username') == '':
-		# load routes_Df
-		routes_df = pd.read_csv("../data/routes_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
-		# compute item-by-item similarity
-		cos_sim, route_id_list = item_by_item_matrix(routes_df)
-		n = 5
-		arr = cos_sim[route_id]
-		similar_routes = np.asarray(route_id_list)[arr.argsort()[-(n+1):][::-1][1:]].tolist()
-		recs = list(routes.find({"id": {"$in": similar_routes}}))
-	elif db.users.find({'name': request.args.get('username')}).count()==0:
-		# if username not found
-		# load routes_Df
-		routes_df = pd.read_csv("../data/routes_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
-		# compute item-by-item similarity
-		cos_sim, route_id_list = item_by_item_matrix(routes_df)
-		n = 5
-		arr = cos_sim[route_id]
-		similar_routes = np.asarray(route_id_list)[arr.argsort()[-(n+1):][::-1][1:]].tolist()
-		recs = list(routes.find({"id": {"$in": similar_routes}}))
-	else:
-		username = request.args.get('username')
-		my_recs = recommender(username)
-		recs = list(routes.find({"id": {"$in": list(my_recs['route_id'])}}))
+	route_name = request.args.get('route-name')
+	route_type = request.args.get('route-type')
+	route_grade_gr = request.args.get('route-grade_gr')
+	route_grade_ls = request.args.get('route-grade_ls')
+	username = request.args.get('username')
+	recs = recommender(username, route_name, route_grade_gr, 
+								route_grade_ls, route_type)
 	return render_template('my-recommendations.html', recs=recs)
-
 # Shut down the scheduler when exiting the app
 #atexit.register(lambda: scheduler.shutdown())
 
@@ -70,10 +52,6 @@ if __name__ == '__main__':
 	client = MongoClient()
 	db = client.routes_updated
 	routes = db.routes
-	db = client.ratings
-	ratings = db.ratings
-	db = client.users
-	users = db.users
 
 	# Start Flask app
 	app.run(host='0.0.0.0', port=PORT, threaded=True, debug=True)

@@ -116,9 +116,8 @@ def get_user_info(user_name):
     user_df = user_info.reset_index().drop(['index', 'name', 'id'], axis=1)
     return user_df, user_id
     
-
+'''
 def recommender(user_name):
-    '''given a username, returns top 6 recommendations'''
     user_df, user_id = get_user_info(user_name)
     # load data frame from csv
     routes_df = pd.read_csv("../data/routes_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
@@ -128,3 +127,151 @@ def recommender(user_name):
     ratings_data['route_id'] = routes_df['id']
     recs_df = ensemble(ratings_data, routes_df, user_df)
     return recs_df.sort_values('final_pred', ascending=False).head(6)
+'''
+
+def query_routes(routes_df, grade_g, grade_l, climb_type):
+    # load data frame from csv
+    route_list = find_grade(routes_df, grade_g, grade_l)
+    id_list = []
+    for r in route_list:
+        id_list.append(r['id'])
+    routes_df = routes_df[routes_df['id'].isin(id_list)]
+    routes_df = check_climb_type(routes_df, climb_type)
+    return routes_df
+    
+    
+def find_grade(routes_df, grade_g, grade_l):
+    '''find the routes with grades between'''
+    grade_list = ['4th', '5th', '5.0', '5.1', '5.2', '5.3', '5.4', '5.5', '5.6', '5.7', '5.7+', '5.8-', 
+              '5.8', '5.8+', '5.9-','5.9', '5.9+', '5.10-', '5.10', '5.10a', '5.10a/b', '5.10b', 
+              '5.10b/c', '5.10c', '5.10c/d', '5.10d', '5.10+', '5.11-', '5.11', '5.11a', '5.11a/b', 
+              '5.11b', '5.11b/c', '5.11c', '5.11c/d', '5.11d', '5.11+', '5.12-', '5.12', '5.12a', 
+              '5.12a/b', '5.12b', '5.12b/c', '5.12c', '5.12c/d', '5.12d', '5.12+', '5.13-', '5.13', 
+              '5.13a', '5.13a/b', '5.13b', '5.13b/c', '5.13c', '5.13d', '5.13+',  '5.14a', '5.14b']
+    if grade_g != '' and grade_l != '':
+        ind1 = grade_list.index(grade_g)
+        ind2 = grade_list.index(grade_l)
+        if ind1 < ind2:
+            grades_ind = grade_list[ind1:ind2]
+        else:
+            grades_ind = grade_list[ind2:ind1]
+    elif grade_g != '':
+        grades_ind = grade_list[grade_list.index(grade_g):]
+    elif grade_l != '':
+        grades_ind = grade_list[:grade_list.index(grade_l)]
+    else:
+        grades_ind = grade_list
+    client = MongoClient()
+    db = client.routes_updated
+    routes = db.routes
+    route_list = list(routes.find({'grade': {'$in': grades_ind}}))
+    return route_list
+    
+    
+def check_climb_type(routes_df, climb_type):
+    '''select by climb type'''
+    if climb_type.lower() == 'trad':
+        routes_df = routes_df[routes_df['Trad'] == 1]
+    elif climb_type.lower() == 'sport':
+        routes_df = routes_df[routes_df['Sport'] == 1]
+    elif climb_type.lower() == 'ice':
+        routes_df = routes_df[routes_df['Ice'] == 1]
+    elif climb_type.lower() == 'aid':
+        routes_df = routes_df[routes_df['Aid'] == 1]
+    elif climb_type.lower() == 'tr':
+        routes_df = routes_df[routes_df['TR'] == 1]
+    elif climb_type.lower() == '':
+        routes_df = routes_df
+    return routes_df
+
+
+def routes_only(routes_df, route_id, routes):
+    # compute item-by-item similarity
+    cos_sim, route_id_list = item_by_item_matrix(routes_df)
+    n = 20
+    index = route_id_list.tolist().index(route_id)
+    arr = cos_sim[index]
+    similar_routes = np.asarray(route_id_list)[arr.argsort()[-(n+1):][::-1][1:]].tolist()
+    recs = list(routes.find({"id": {"$in": similar_routes}}))
+    return recs
+'''
+
+def recommender(user_name, route_name, grade_g, grade_l, climb_type):
+    
+    # load data frame from csv
+    routes_df = pd.read_csv("../data/routes_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
+    routes_df = query_routes(route_name, grade_g, grade_l, climb_type)
+    routes_df = routes_df.reset_index().drop('index', axis=1)
+    # make a dataframe with all the routes and only the user_id
+    if user_name == '' and route_name != '':
+
+    user_df, user_id = get_user_info(user_name)
+    ratings_data = pd.DataFrame(columns=['route_id', 'user_id'])
+    ratings_data['user_id'] = (0 * routes_df['id']) + user_id 
+    ratings_data['route_id'] = routes_df['id']
+    recs_df = ensemble(ratings_data, routes_df, user_df)
+    return recs_df.sort_values('final_pred', ascending=False).head(6)
+'''
+
+def find_sim_routes(route_name, routes_df, grade_g, grade_l, climb_type):
+    '''generates cosine similar routes, and queries results'''
+    # load route database
+    client = MongoClient()
+    db = client.routes_updated
+    routes = db.routes
+    route_id = list(routes.find({'name': route_name}))[0]['id']
+    # find similar routes
+    recs = routes_only(routes_df, route_id, routes)
+    # query results
+    routes_df = query_routes(pd.DataFrame(recs), 
+                            grade_g, 
+                            grade_l, 
+                            climb_type)
+    routes_df = routes_df.reset_index().drop('index', axis=1)
+    # return to dict format
+    recs = routes_df.to_dict(orient='records')
+    return recs
+
+
+def find_recs(routes_df, grade_g, grade_l, climb_type, user_name):
+    '''generates recommendation based on ensemble model'''
+    # query routes
+    client = MongoClient()
+    db = client.routes_updated
+    routes = db.routes
+    routes_df = query_routes(routes_df, grade_g, grade_l, climb_type)
+    routes_df = routes_df.reset_index().drop('index', axis=1)
+    user_df, user_id = get_user_info(user_name)
+    # make user dataframe
+    ratings_data = pd.DataFrame(columns=['route_id', 'user_id'])
+    ratings_data['user_id'] = (0 * routes_df['id']) + user_id 
+    ratings_data['route_id'] = routes_df['id']
+    # find recs from ensemble model
+    recs_df = ensemble(ratings_data, routes_df, user_df)
+    recs_df = recs_df.sort_values('final_pred', ascending=False).head(6)
+    recs = list(routes.find({"id": {"$in": list(recs_df['route_id'])}}))
+    return recs
+
+
+def recommender(user_name, route_name, grade_g, grade_l, climb_type):
+    '''given a username, returns top 6 recommendations'''
+    routes_df = pd.read_csv("../data/routes_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
+    # make a dataframe with all the routes and only the user_id
+    client = MongoClient()
+    db = client.users
+    users = db.users
+    if user_name == '' and route_name != '':
+        recs = find_sim_routes(route_name, 
+                                routes_df, 
+                                grade_g, 
+                                grade_l, 
+                                climb_type)
+    elif user_name != '' and users.find({'name': user_name}).count()!=0:
+        recs = find_recs(routes_df, 
+                        grade_g, 
+                        grade_l, 
+                        climb_type, 
+                        user_name)
+    else:
+        recs = []
+    return recs

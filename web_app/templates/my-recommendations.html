@@ -90,7 +90,7 @@
                                {% for r in recs %}
                                <tr>
                                    <td><b><a href={{'https://www.mountainproject.com' + r['route_url']}} target="_blank">{{r['name']}}</a></b></td> 
-                                   <td>{{r['area']}}</td>
+                                   <td>{{r['area'].replace('aAreas','')}}</td>
                                    <td>{{r['grade']}}</td>
                                    <td>{{r['average_rating']}}</td>
                                </tr>
@@ -160,7 +160,7 @@
         <div class="container text-center">
             <div class="call-to-action">
                 <h2>Interested in the data science behind the recommender? </h2>
-                <a href="http://www.jadetabony.com/projects" class="btn btn-default btn-xl sr-button">Checkout my blog series on it</a>
+                <a href="https://github.com/davidblaszka/Rock-Climbing-Route-Recommender" class="btn btn-default btn-xl sr-button">Checkout my github repository on it</a>
             </div>
         </div>
     </aside>

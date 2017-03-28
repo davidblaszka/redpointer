@@ -1,11 +1,7 @@
-from flask import Flask, url_for, request, render_template, Markup,redirect
+from flask import Flask, request, render_template
 from pymongo import MongoClient
 import pandas as pd
-from datetime import date
-import time
-import atexit
-import numpy as np
-from find_recommendations import (recommender, item_by_item_matrix)
+from find_recommendations import recommender
 
 
 app = Flask(__name__)
@@ -42,8 +38,7 @@ def getRecs():
 	recs = recommender(username, route_name, route_grade_gr, 
 								route_grade_ls, route_type)
 	return render_template('my-recommendations.html', recs=recs)
-# Shut down the scheduler when exiting the app
-#atexit.register(lambda: scheduler.shutdown())
+
 
 if __name__ == '__main__':
 	# Register for pinging service

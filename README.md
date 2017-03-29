@@ -5,7 +5,7 @@ Galvanize Data Science Program - Winter 2017 - Capstone Project - David Blaszka
 
 ## Overview
 
-Mountain Porject is a tremendous resource for finding information about rock climbing routes across the globe. While the site provides this excellent information on routes, it does not have any current installation of a route recommender based on past routes that a user has liked. I built RedPointer to provide users with a recommender system.
+Mountain Project is a tremendous resource for finding information about rock climbing routes across the globe. While the site provides this excellent information on routes, it does not have any current installation of a route recommender based on past routes that a user has liked. I built RedPointer to provide users with a recommender system.
 
 ![Image](data/images/redpointer.png)
 

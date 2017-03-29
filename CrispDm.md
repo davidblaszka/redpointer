@@ -5,9 +5,9 @@ _Mountian Project Rock Climbing Route Recommender_
 
 
 ## Business Understanding
-Mountain Project is a site that provides information on rock climbing routes, with full descriptions and user ratings on the quality of the routes. But there are over 3000 sport and trad climbing routes in Washington alone (not including bouldering or mountaineering routes), so how does one come to decide on they're next adventure?
+Mountain Project is a site that provides information on rock climbing routes, with full descriptions and user ratings on the quality of the routes. But there are over 3000 sport and trad climbing routes in Washington alone (not including bouldering or mountaineering routes), so how does someone decide what's their next route?
 
-That's where **RedPointer** comes in. **RedPointer** is a rock climbing route recommender that was built to provide the best route recommendations uniquely fit for an indivual's personal style of climbing. 
+That's where **RedPointer** comes in. **RedPointer** is a rock climbing route recommender that was built to provide the best route recommendations uniquely fit for an individual's personal style of climbing. 
 
 When a climber is at the crags (climbing area), or deciding at home which crag to go to, he or she can use RedPointer to point them towards the best climb in the area.
 
@@ -34,18 +34,18 @@ Routes have several features:
 Users have several consistent features:
 * Member since
 * Last visit
-* FavoriteClimbs
+* Favorite climbs
 * Name
 * Age
 * Live in
 * Styles
 
 ## Data Preparation
-A large part of this project was using Selenium to scrape user and route infromation off the Mountain Project website. After which, Requests and Beautiful Soup were used to parse the html scraped. The html was all heavily cleaned in Pandas. This included filling nulls, creating dummy variables for catagorical data, and other feature engineering. 
+A large part of this project was using Selenium to scrape user and route information off the Mountain Project website. After which, Requests and Beautiful Soup were used to parse the HTML scraped. The HTML was all heavily cleaned in Pandas. This included filling nulls, creating dummy variables for catagorical data, and other feature engineering. 
 
 
 ## Modeling
-Three matrices are important here: (1) The user table, which includes information on users, such as age, name, where they live, etc. (2) The route table, which includes information on routes, such as route type, route grade, area of route, etc. (3) The utility matrix, which is a matrix with routes as columns, users as rows, and ratings as the value of where that user rated the route or a unfilled cell. 
+Three matrices are important here: (1) The user table, which includes information on users, such as age, name, where they live, etc. (2) The route table, which includes information on routes, such as route type, route grade, area of route, etc. (3) The utility matrix, which is a matrix with routes as columns, users as rows, and ratings as the value of where that user rated the route or an unfilled cell. 
 
 The user database provides a way to find user-by-user matrix using cosine similarity. Similarly, an item-by-item matrix, can be found using the route database. Using collaborative filtering on the utility matrix, using alternating least squares (ALS), we can create a model for predicting ratings. This can visualized by the image below:
 
@@ -69,7 +69,7 @@ The deployment aspect of this project is in the form a website.
 
 ![Image of the landing page](data/images/redpointer.png)
 
- Users can come to the page, search for popular routes, search for similar routes to ones they enjoy, get recommendations based on thier past behavior, and they can filter the results.
+Users can come to the page, search for popular routes, search for similar routes to ones they enjoy, get recommendations based on thier past behavior, and they can filter the results.
 
 ![Image of the landing page](data/images/site2.png)
 

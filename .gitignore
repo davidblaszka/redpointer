@@ -4,3 +4,4 @@
 *.ipynb_checkpoints
 /src/metastore_db
 *.swp
+*metastore_db/

@@ -1,5 +1,5 @@
 # RedPointer
-A MountainProject Rock Climbing Route Recommender
+A Mountain Project Rock Climbing Route Recommender
 
 Galvanize Data Science Program - Winter 2017 - Capstone Project - David Blaszka
 
@@ -10,27 +10,27 @@ Mountain Project is a tremendous resource for finding information about rock cli
 ![Image](data/images/redpointer.png)
 
 
-## Data Source
+## DATA SOURCE
 
-All of my data is scraped from the Mountain Project website using requests and BeautifulSoup. For each route, I scraped the route meta data. Similarly, for each user that rated a route, I scraped their meta deta and the rating they gave the route. 
+All of my data is scraped from the Mountain Project website using Requests and BeautifulSoup. For each route, I scraped the route meta data. Similarly, for each user that rated a route, I scraped their meta deta and the rating they gave the route. 
 
-All of the data was stored in MongoDB.
+All of the data was stored in MongoDB database.
 
-### Recommendation System
+### RECOMMENDATION SYSTEM
 
 The recommendation system is implemented using an ensemble method, including: Apache Spark's Alternating Least Squares (ALS) model, Sklearn's Gradient Boosting model, and a cosine similarity matrix. I tried four different types of recommendation systems:
   * Factorization Recommender
-  * **Gradient Boosting**
-  * **Item Content Recommender**
-  * **Full Ensemble of all three**
+  * Gradient Boosting
+  * Item Content Recommender
+  * Full Ensemble of all three
 
 The models were each evaluated using RMSE scores calculated on a hold out test group. 
 
 
 ### Installations Required to Run the Code:
-Mongodb, anaconda, spark
+Mongodb, pymongo, anaconda, spark, pyspark, ggplot
 
-## How to run the code:
+## HOW TO RUN THE CODE:
 
 1. Begin by running the file, scraper\_main.py, in the terminal with 
 
@@ -38,7 +38,7 @@ Mongodb, anaconda, spark
 python scraper_main.py
 ```
 
-This will save three tables (ratings, user info, and route info), including urls and html, to a mongodb database.
+This will save three tables (ratings, user info, and route info), including URLs and HTML, to a mongodb database.
 
 2. Next, run the file, parse\_clean\_store\_main.py, to parse html, clean the contents, and store user/route info in a mongodb database.
 
@@ -61,13 +61,13 @@ python create_ratings_matrix.py
 7. Run the file, ensemble\_model.py, to obtain an RMSE score for the ensemble model.
   
 
-## Future Work
+## FUTURE WORK
   * Add bouldering routes
   * Extend to outside of Washington
-  * Allow for users to querying the routes on my website. This would allow users to find recommendations based on type of route (sport, trad, etc.), the location of the route, and the climbing grade.
-  * Find a faster way to run my model on the website. 
+  * Focus model on only top recommendations
+  * Find a faster way to run my model on the website
 
-## Sources
+## SOURCES
 
 1) MountainProject.com
 

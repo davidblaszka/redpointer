@@ -12,12 +12,11 @@ from pymongo import MongoClient
 
 
 def als_model(data):
+    '''uses sparks als model to predict ratings'''
     # Build our Spark Session and Context
     spark = pyspark.sql.SparkSession.builder.getOrCreate()
     sc = spark.sparkContext
     spark, sc
-
-    '''uses sparks als model to predict ratings'''
     # Convert to a Spark DataFrame
     data_spark = spark.createDataFrame(data)
     # get als_model
@@ -73,7 +72,6 @@ def item_by_item(ratings_data, cos_sim, routes_id):
         mean_rating = np.mean(pred)
         item_by_item_pred.append(mean_rating) 
     return item_by_item_pred
-
 
 
 def weighted2(als_pred_df, item_by_item_pred, gb_pred_array, routes_df):

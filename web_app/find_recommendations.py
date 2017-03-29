@@ -3,13 +3,13 @@ from sklearn.ensemble import GradientBoostingRegressor
 import numpy as np
 import pyspark
 from pyspark.sql.types import *
-from pyspark.ml.tuning import TrainValidationSplit
-from pyspark.ml.recommendation import ALS, ALSModel
+from pyspark.ml.recommendation import ALSModel
 from sklearn.externals import joblib
 from sklearn.preprocessing import normalize
 from sklearn.metrics import pairwise_distances
 from scipy.spatial.distance import cosine
 from pymongo import MongoClient
+
 
 def als_model(data):
     # Build our Spark Session and Context
@@ -82,7 +82,8 @@ def weighted2(als_pred_df, item_by_item_pred, gb_pred_array, routes_df):
     # load weights
     c = np.load('../data/c.npy')
     # get review count
-    normalized_rating_count = routes_df['num_reviews'] / float(routes_df['num_reviews'].max())
+    normalized_rating_count = routes_df['num_reviews'] / \
+                                float(routes_df['num_reviews'].max())
     alpha = np.array((2.0 / (1 + np.exp(-c * normalized_rating_count))) - 1)
     beta = np.load('../data/beta.npy')
     predictions_df['weighted'] = alpha *  predictions_df['prediction'] + \
@@ -103,31 +104,21 @@ def ensemble(ratings_data, routes_df, user_df):
     # get item_by_item predictions
     item_by_item_pred = item_by_item(ratings_data, cos_sim, routes_id)
     # get ensemble predictions
-    predictions_df = weighted2(als_pred_df, item_by_item_pred, gb_pred_array, routes_df)
+    predictions_df = weighted2(als_pred_df, item_by_item_pred, 
+                                gb_pred_array, routes_df)
     return predictions_df
     
 
 def get_user_info(user_name):
     # load data frame from csv
-    users_df = pd.read_csv("../data/users_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
+    users_df = pd.read_csv("../data/users_df.csv", 
+                            sep='\t').drop('Unnamed: 0', axis=1)
     # grab user info
     user_info = users_df[users_df['name'] == user_name]
     user_id = user_info['id'].iloc[0]
     user_df = user_info.reset_index().drop(['index', 'name', 'id'], axis=1)
     return user_df, user_id
     
-'''
-def recommender(user_name):
-    user_df, user_id = get_user_info(user_name)
-    # load data frame from csv
-    routes_df = pd.read_csv("../data/routes_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
-    # make a dataframe with all the routes and only the user_id
-    ratings_data = pd.DataFrame(columns=['route_id', 'user_id'])
-    ratings_data['user_id'] = (0 * routes_df['id']) + user_id 
-    ratings_data['route_id'] = routes_df['id']
-    recs_df = ensemble(ratings_data, routes_df, user_df)
-    return recs_df.sort_values('final_pred', ascending=False).head(6)
-'''
 
 def query_routes(routes_df, grade_g, grade_l, climb_type):
     # load data frame from csv
@@ -142,13 +133,20 @@ def query_routes(routes_df, grade_g, grade_l, climb_type):
     
 def find_grade(routes_df, grade_g, grade_l):
     '''find the routes with grades between'''
-    grade_list = ['4th', '5th', '5.0', '5.1', '5.2', '5.3', '5.4', '5.5', '5.6', '5.7', '5.7+', '5.8-', 
-              '5.8', '5.8+', '5.9-','5.9', '5.9+', '5.10-', '5.10', '5.10a', '5.10a/b', '5.10b', 
-              '5.10b/c', '5.10c', '5.10c/d', '5.10d', '5.10+', '5.11-', '5.11', '5.11a', '5.11a/b', 
-              '5.11b', '5.11b/c', '5.11c', '5.11c/d', '5.11d', '5.11+', '5.12-', '5.12', '5.12a', 
-              '5.12a/b', '5.12b', '5.12b/c', '5.12c', '5.12c/d', '5.12d', '5.12+', '5.13-', '5.13', 
-              '5.13a', '5.13a/b', '5.13b', '5.13b/c', '5.13c', '5.13d', '5.13+',  '5.14a', '5.14b']
-    if grade_g != '' and grade_l != '':
+    # open grades.txt to obtain grades in order
+    with open('../data/grades.txt') as f:
+        grade_data = f.read()
+    grade_list = grade_data.replace('\n','').replace(' ', '').split(',')
+    # solve for grade indexing
+    if grade_g not in grade_list and grade_l not in grade_list:
+        grades_ind = []
+    elif grade_g not in grade_list and grade_l in grade_list:
+        ind2 = grade_list.index(grade_l)
+        grades_ind = grade_list[:ind2]
+    elif grade_g in grade_list and grade_l not in grade_list:
+        ind1 = grade_list.index(grade_g)
+        grades_ind = grade_list[ind1:]
+    elif grade_g != '' and grade_l != '':
         ind1 = grade_list.index(grade_g)
         ind2 = grade_list.index(grade_l)
         if ind1 < ind2:
@@ -188,30 +186,13 @@ def check_climb_type(routes_df, climb_type):
 def routes_only(routes_df, route_id, routes):
     # compute item-by-item similarity
     cos_sim, route_id_list = item_by_item_matrix(routes_df)
-    n = 20
+    n = 40
     index = route_id_list.tolist().index(route_id)
     arr = cos_sim[index]
     similar_routes = np.asarray(route_id_list)[arr.argsort()[-(n+1):][::-1][1:]].tolist()
     recs = list(routes.find({"id": {"$in": similar_routes}}))
     return recs
-'''
 
-def recommender(user_name, route_name, grade_g, grade_l, climb_type):
-    
-    # load data frame from csv
-    routes_df = pd.read_csv("../data/routes_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
-    routes_df = query_routes(route_name, grade_g, grade_l, climb_type)
-    routes_df = routes_df.reset_index().drop('index', axis=1)
-    # make a dataframe with all the routes and only the user_id
-    if user_name == '' and route_name != '':
-
-    user_df, user_id = get_user_info(user_name)
-    ratings_data = pd.DataFrame(columns=['route_id', 'user_id'])
-    ratings_data['user_id'] = (0 * routes_df['id']) + user_id 
-    ratings_data['route_id'] = routes_df['id']
-    recs_df = ensemble(ratings_data, routes_df, user_df)
-    return recs_df.sort_values('final_pred', ascending=False).head(6)
-'''
 
 def find_sim_routes(route_name, routes_df, grade_g, grade_l, climb_type):
     '''generates cosine similar routes, and queries results'''
@@ -228,9 +209,18 @@ def find_sim_routes(route_name, routes_df, grade_g, grade_l, climb_type):
                             grade_l, 
                             climb_type)
     routes_df = routes_df.reset_index().drop('index', axis=1)
+    routes_df = routes_df.sort_values('average_rating', 
+                                        ascending=False).head(20)
     # return to dict format
     recs = routes_df.to_dict(orient='records')
     return recs
+
+
+def sort_recs(recs):
+    '''sort recs to page view'''
+    df = pd.DataFrame(recs)
+    df = df.sort_values('page_views', ascending=False)
+    return df.to_dict(orient='records')
 
 
 def find_recs(routes_df, grade_g, grade_l, climb_type, user_name):
@@ -247,15 +237,20 @@ def find_recs(routes_df, grade_g, grade_l, climb_type, user_name):
     ratings_data['user_id'] = (0 * routes_df['id']) + user_id 
     ratings_data['route_id'] = routes_df['id']
     # find recs from ensemble model
-    recs_df = ensemble(ratings_data, routes_df, user_df)
-    recs_df = recs_df.sort_values('final_pred', ascending=False).head(6)
-    recs = list(routes.find({"id": {"$in": list(recs_df['route_id'])}}))
-    return recs
+    if ratings_data.empty:
+        return []
+    else:
+        recs_df = ensemble(ratings_data, routes_df, user_df)
+        recs_df = recs_df.sort_values('final_pred', ascending=False).head(20)
+        recs = list(routes.find({"id": {"$in": list(recs_df['route_id'])}}))
+        recs = sort_recs(recs)
+        return recs
 
 
 def recommender(user_name, route_name, grade_g, grade_l, climb_type):
     '''given a username, returns top 6 recommendations'''
-    routes_df = pd.read_csv("../data/routes_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
+    routes_df = pd.read_csv("../data/routes_df.csv", 
+                            sep='\t').drop('Unnamed: 0', axis=1)
     # make a dataframe with all the routes and only the user_id
     client = MongoClient()
     db = client.users

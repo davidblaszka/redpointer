@@ -1,6 +1,5 @@
 from pymongo import MongoClient
 import pandas as pd
-import json
 import numpy as np
 
 
@@ -36,31 +35,6 @@ def create_utility_matrix(df_ratings, df_users, df_routes):
             df_new.loc[row, 'rating'] = rating
             row += 1
     return df_new
-
-def create_ratings_matrix(df):
-	'''creates a ratings matrix with route_id,user_id, and rating'''
-	route_id = 0
-	row = 0
-	username_list = []
-	df_new = pd.DataFrame(columns=['route_id',
-									'user_id',
-									'rating', 
-									'route', 
-									'username'])
-	for route, usernames, ratings in zip(df['route'], 
-	                                    df['username'],
-	                                    df['rating']):
-	    for username, rating in zip(usernames, ratings):
-	        if username not in username_list:
-	            username_list.append(username)
-	        df_new.loc[row,'route_id'] = route_id
-	        df_new.loc[row,'route'] = route
-	        df_new.loc[row,'username'] = username
-	        df_new.loc[row, 'user_id'] = username_list.index(username)
-	        df_new.loc[row, 'rating'] = rating
-	        row += 1
-	    route_id += 1
-	return df_new
 
 
 if __name__ == "__main__":

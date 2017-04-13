@@ -47,7 +47,7 @@ def item_by_item_matrix(routes_df):
     items_mat = np.array(list(routes_df_new.values)).astype(float)
     # normalize features
     items_mat_norm = normalize(items_mat)
-    cos_sim = 1-pairwise_distances(items_mat, metric="cosine")
+    cos_sim = 1 - pairwise_distances(items_mat, metric="cosine")
     return cos_sim, routes_id
 
 
@@ -136,27 +136,21 @@ def find_grade(routes_df, grade_g, grade_l):
         grade_data = f.read()
     grade_list = grade_data.replace('\n','').replace(' ', '').split(',')
     # solve for grade indexing
-    if grade_g !='' and grade_l != '' and grade_g not in grade_list \
-        and grade_l not in grade_list:
+    if grade_g not in grade_list and grade_l not in grade_list:
         grades_ind = []
-    elif grade_g !='' and grade_l != '' and grade_g not in grade_list \
-        and grade_l in grade_list:
+    elif grade_g not in grade_list and grade_l in grade_list:
         ind2 = grade_list.index(grade_l)
         grades_ind = grade_list[:ind2]
-    if grade_g in grade_list and grade_l not in grade_list:
+    elif grade_g in grade_list and grade_l not in grade_list:
         ind1 = grade_list.index(grade_g)
         grades_ind = grade_list[ind1:]
-    elif grade_g != '' and grade_l != '':
+    elif grade_g in grade_list and grade_l in grade_list:
         ind1 = grade_list.index(grade_g)
         ind2 = grade_list.index(grade_l)
         if ind1 < ind2:
             grades_ind = grade_list[ind1:ind2]
         else:
             grades_ind = grade_list[ind2:ind1]
-    elif grade_g != '':
-        grades_ind = grade_list[grade_list.index(grade_g):]
-    elif grade_l != '':
-        grades_ind = grade_list[:grade_list.index(grade_l)]
     else:
         grades_ind = grade_list
     client = MongoClient()
@@ -200,6 +194,8 @@ def find_sim_routes(route_name, routes_df, grade_g, grade_l, climb_type):
     client = MongoClient()
     db = client.routes_updated
     routes = db.routes
+    if list(routes.find({'name': route_name})) == []:
+        return []
     route_id = list(routes.find({'name': route_name}))[0]['id']
     # find similar routes
     recs = routes_only(routes_df, route_id, routes)

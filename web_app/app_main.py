@@ -6,6 +6,10 @@ from find_recommendations import recommender
 
 app = Flask(__name__)
 PORT = 8080
+# Connect to the database
+client = MongoClient()
+db = client.routes_updated
+routes = db.routes
 
 @app.route('/')
 def root():
@@ -43,10 +47,6 @@ def getRecs():
 if __name__ == '__main__':
 	# Register for pinging service
 
-	# Connect to the database
-	client = MongoClient()
-	db = client.routes_updated
-	routes = db.routes
 
 	# Start Flask app
 	app.run(host='0.0.0.0', port=PORT, threaded=True, debug=True)

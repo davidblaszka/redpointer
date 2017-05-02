@@ -136,7 +136,8 @@ def find_grade(routes_df, grade_g, grade_l):
         grade_data = f.read()
     grade_list = grade_data.replace('\n','').replace(' ', '').split(',')
     # solve for grade indexing
-    if grade_g not in grade_list and grade_l not in grade_list and grade_g != '' and grade_l !='':
+
+    if grade_g not in grade_list and grade_l not in grade_list and grade_g != '' and grade_l != '':
         grades_ind = []
     elif grade_g not in grade_list and grade_l in grade_list:
         ind2 = grade_list.index(grade_l)

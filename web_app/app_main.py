@@ -38,7 +38,7 @@ def getRecs():
 	route_type = request.args.get('route-type')
 	route_grade_gr = request.args.get('route-grade_gr')
 	route_grade_ls = request.args.get('route-grade_ls')
-	username = request.args.get('username')
+	username = '' # request.args.get('username')
 	recs = recommender(username, route_name, route_grade_gr, 
 								route_grade_ls, route_type)
 	return render_template('my-recommendations.html', recs=recs)

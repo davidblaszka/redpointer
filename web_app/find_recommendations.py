@@ -67,8 +67,8 @@ def item_by_item(ratings_data, cos_sim, routes_id):
         # average the five routes together to get rating
         routes_info = list(routes.find({'id':{'$in': similar_routes.tolist()}}))
         pred = []
-        for route in routes_info
-:            pred.append(route['average_rating'])
+        for route in routes_info:
+            pred.append(route['average_rating'])
         mean_rating = np.mean(pred)
         item_by_item_pred.append(mean_rating) 
     return item_by_item_pred
@@ -137,7 +137,8 @@ def find_grade(routes_df, grade_g, grade_l):
     grade_list = grade_data.replace('\n','').replace(' ', '').split(',')
     # solve for grade indexing
 
-    if grade_g not in grade_list and grade_l not in grade_list and grade_g != '' and grade_l != '':
+    if grade_g not in grade_list and grade_l not in \
+        grade_list and grade_g != '' and grade_l != '':
         grades_ind = []
     elif grade_g not in grade_list and grade_l in grade_list:
         ind2 = grade_list.index(grade_l)

@@ -27,7 +27,7 @@ def getReturnRatings():
 		grade_data = f.read()
 	grade_list = grade_data.replace('\n','').replace(' ', '').split(',')
 	# make list of route types
-	route_type = ['Any', 'Aid', 'TR', 'Trad', 'Sport', 'Ice', 'Alpine', 'Mixed']
+	route_type = ['Any', 'Aid', 'TR', 'Trad', 'Sport', 'Alpine']
 	return render_template('recommender.html', 
 							routes=routes, 
 							grades=grade_list, 
@@ -42,7 +42,7 @@ def getNewRatings():
 		grade_data = f.read()
 	grade_list = grade_data.replace('\n','').replace(' ', '').split(',')
 	# make list of route types
-	route_type = ['Any', 'Aid', 'TR', 'Trad', 'Sport', 'Ice', 'Alpine', 'Mixed']
+	route_type = ['Any', 'Aid', 'TR', 'Trad', 'Sport', 'Alpine']
 	return render_template('recommender.html', 
 							routes=routes, 
 							grades=grade_list, 

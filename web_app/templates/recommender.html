@@ -70,7 +70,7 @@
       <div class="container">
           <div class="row">
               <div class="col-lg-12 text-center">
-                  <h2 class="section-heading">Find Similar Routes to Your Favorites!</h2>
+                  <h2 class="section-heading">Find Routes Similar to Your Favorites!</h2>
                   <hr class="primary">
               </div>
           </div>
@@ -89,26 +89,36 @@
                             </datalist>
                           </br>
                        </br>
-                         <label class='rating-form' >Route Type (Trad, Sport, TR) </label>
+                         <label class='rating-form' >Route Type </label>
                        </br>
-                         <input list='route-type' name='route-type'>
-                            <datalist id='route-type'>
-                            </datalist>
+                        </br>
+                          <select name='route-type'>
+                            {% for r in route_type %}
+                              <option value="{{r}}">{{r}}</option>
+                            {% endfor %}
+                          </select>
                           </br>
                        </br>
                          <label class='rating-form' >Grade From</label>
                        </br>
-                         <input list='route-grade_gr' name='route-grade_gr'>
-                            <datalist id='route-grade_gr'>
-                            </datalist>
-                          </br>
+                        </br>
+                          <select name='route-grade_gr'>
+                            {% for g in grades %}
+                              <option value="{{g}}">{{g}}</option>
+                            {% endfor %}
+                          </select>
+                        </br>
                        </br>
                          <label class='rating-form' >Grade To</label>
-                       </br>
-                         <input list='route-grade_ls' name='route-grade_ls'>
-                            <datalist id='route-grade_ls'>
-                            </datalist>
+                        </br>
                           </br>
+                          <select name='route-grade_ls'>
+                            {% for g in grades %}
+                              <option value="{{g}}">{{g}}</option>
+                            {% endfor %}
+                          </select>
+                          </br>
+                        </br>
                           <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
                           <script type="text/javascript">
 
@@ -129,7 +139,7 @@
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <h2 class="section-heading">Behind the Project</h2>
-                    <p class="section-heading">Interested in learning more about any step?  Click on the image!</p>
+                    <p class="section-heading">Interested in learning about the backend tools? See below!</p>
                     <hr class="primary">
                 </div>
             </div>

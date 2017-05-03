@@ -125,7 +125,8 @@ def query_routes(routes_df, grade_g, grade_l, climb_type):
     for r in route_list:
         id_list.append(r['id'])
     routes_df = routes_df[routes_df['id'].isin(id_list)]
-    routes_df = check_climb_type(routes_df, climb_type)
+    if climb_type != 'Any':
+        routes_df = routes_df = routes_df[routes_df[climb_type] == 1]
     return routes_df
     
     
@@ -136,53 +137,32 @@ def find_grade(routes_df, grade_g, grade_l):
         grade_data = f.read()
     grade_list = grade_data.replace('\n','').replace(' ', '').split(',')
     # solve for grade indexing
-
-    if grade_g not in grade_list and grade_l not in \
-        grade_list and grade_g != '' and grade_l != '':
-        grades_ind = []
-    elif grade_g not in grade_list and grade_l in grade_list:
+    if grade_g == 'Any' and grade_l == 'Any':
+        grades_ind = grade_list
+    elif grade_g == 'Any' and grade_l != 'Any':
         ind2 = grade_list.index(grade_l)
         grades_ind = grade_list[:ind2]
-    elif grade_g in grade_list and grade_l not in grade_list:
+    elif grade_g != 'Any' and grade_l == 'Any':
         ind1 = grade_list.index(grade_g)
         grades_ind = grade_list[ind1:]
-    elif grade_g in grade_list and grade_l in grade_list:
+    else:
         ind1 = grade_list.index(grade_g)
         ind2 = grade_list.index(grade_l)
         if ind1 < ind2:
             grades_ind = grade_list[ind1:ind2]
         else:
             grades_ind = grade_list[ind2:ind1]
-    else:
-        grades_ind = grade_list
     client = MongoClient()
     db = client.routes_updated
     routes = db.routes
     route_list = list(routes.find({'grade': {'$in': grades_ind}}))
     return route_list
     
-    
-def check_climb_type(routes_df, climb_type):
-    '''select by climb type'''
-    if climb_type.lower() == 'trad':
-        routes_df = routes_df[routes_df['Trad'] == 1]
-    elif climb_type.lower() == 'sport':
-        routes_df = routes_df[routes_df['Sport'] == 1]
-    elif climb_type.lower() == 'ice':
-        routes_df = routes_df[routes_df['Ice'] == 1]
-    elif climb_type.lower() == 'aid':
-        routes_df = routes_df[routes_df['Aid'] == 1]
-    elif climb_type.lower() == 'tr':
-        routes_df = routes_df[routes_df['TR'] == 1]
-    elif climb_type.lower() == '':
-        routes_df = routes_df
-    return routes_df
-
 
 def routes_only(routes_df, route_id, routes):
     # compute item-by-item similarity
     cos_sim, route_id_list = item_by_item_matrix(routes_df)
-    n = 40
+    n = 100
     index = route_id_list.tolist().index(route_id)
     arr = cos_sim[index]
     similar_routes = np.asarray(route_id_list)[arr.argsort()[-(n+1):][::-1][1:]].tolist()

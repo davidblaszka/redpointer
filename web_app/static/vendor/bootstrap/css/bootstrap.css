@@ -2630,6 +2630,7 @@ input[type="search"] {
 }
 .form-group {
   margin-bottom: 15px;
+  display:block;
 }
 .radio,
 .checkbox {

@@ -23,13 +23,30 @@ def root():
 @app.route('/returning-user', methods=['GET', 'POST'])
 def getReturnRatings():
 	routes = db.routes.find({})
-	return render_template('recommender.html', routes=routes)
+	with open('../data/grades.txt') as f:
+		grade_data = f.read()
+	grade_list = grade_data.replace('\n','').replace(' ', '').split(',')
+	# make list of route types
+	route_type = ['Any', 'Aid', 'TR', 'Trad', 'Sport', 'Ice', 'Alpine', 'Mixed']
+	return render_template('recommender.html', 
+							routes=routes, 
+							grades=grade_list, 
+							route_type=route_type)
 
 
 @app.route('/new-user', methods=['GET', 'POST'])
 def getNewRatings():
 	routes = db.routes.find({})
-	return render_template('recommender.html', routes=routes)
+	# open grade file
+	with open('../data/grades.txt') as f:
+		grade_data = f.read()
+	grade_list = grade_data.replace('\n','').replace(' ', '').split(',')
+	# make list of route types
+	route_type = ['Any', 'Aid', 'TR', 'Trad', 'Sport', 'Ice', 'Alpine', 'Mixed']
+	return render_template('recommender.html', 
+							routes=routes, 
+							grades=grade_list, 
+							route_type=route_type)
 
 
 @app.route('/my-recommendations', methods=['POST', 'GET'])

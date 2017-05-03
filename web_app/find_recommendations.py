@@ -125,7 +125,7 @@ def query_routes(routes_df, grade_g, grade_l, climb_type):
     for r in route_list:
         id_list.append(r['id'])
     routes_df = routes_df[routes_df['id'].isin(id_list)]
-    if climb_type != 'Any':
+    if climb_type != 'Select':
         routes_df = routes_df = routes_df[routes_df[climb_type] == 1]
     return routes_df
     
@@ -137,12 +137,12 @@ def find_grade(routes_df, grade_g, grade_l):
         grade_data = f.read()
     grade_list = grade_data.replace('\n','').replace(' ', '').split(',')
     # solve for grade indexing
-    if grade_g == 'Any' and grade_l == 'Any':
+    if grade_g == 'Select' and grade_l == 'Select':
         grades_ind = grade_list
-    elif grade_g == 'Any' and grade_l != 'Any':
+    elif grade_g == 'Select' and grade_l != 'Select':
         ind2 = grade_list.index(grade_l)
         grades_ind = grade_list[:ind2]
-    elif grade_g != 'Any' and grade_l == 'Any':
+    elif grade_g != 'Select' and grade_l == 'Select':
         ind1 = grade_list.index(grade_g)
         grades_ind = grade_list[ind1:]
     else:

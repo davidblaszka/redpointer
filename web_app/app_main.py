@@ -8,13 +8,13 @@ app = Flask(__name__)
 PORT = 8080
 # Connect to the database
 client = MongoClient()
-db = client.routes_updated
-routes = db.routes
+db = client.redpointer
+
 
 @app.route('/')
 def root():
 	# find top routes in washington
-	df = pd.DataFrame(list(routes.find()))
+	df = pd.DataFrame(list(db.routes.find()))
 	df_sorted= df.sort_values('page_views', ascending=False).head(20)
 	recs = df_sorted.sort_values('average_rating', ascending=False).head(6)
 	return render_template('index.html', routes=recs)
@@ -23,30 +23,34 @@ def root():
 @app.route('/returning-user', methods=['GET', 'POST'])
 def getReturnRatings():
 	routes = db.routes.find({})
+	users = db.users.find({})
 	with open('../data/grades.txt') as f:
 		grade_data = f.read()
-	grade_list = grade_data.replace('\n','').replace(' ', '').split(',')
+	grade_list = grade_data.replace('\n', '').replace(' ', '').split(',')
 	# make list of route types
 	route_type = ['Select', 'Aid', 'TR', 'Trad', 'Sport', 'Alpine']
 	return render_template('recommender.html', 
 							routes=routes, 
 							grades=grade_list, 
-							route_type=route_type)
+							route_type=route_type,
+							users=users)
 
 
 @app.route('/new-user', methods=['GET', 'POST'])
 def getNewRatings():
 	routes = db.routes.find({})
+	users = db.users.find({})
 	# open grade file
 	with open('../data/grades.txt') as f:
 		grade_data = f.read()
-	grade_list = grade_data.replace('\n','').replace(' ', '').split(',')
+	grade_list = grade_data.replace('\n', '').replace(' ', '').split(',')
 	# make list of route types
 	route_type = ['Select', 'Aid', 'TR', 'Trad', 'Sport', 'Alpine']
 	return render_template('recommender.html', 
 							routes=routes, 
 							grades=grade_list, 
-							route_type=route_type)
+							route_type=route_type,
+							users=users)
 
 
 @app.route('/my-recommendations', methods=['POST', 'GET'])
@@ -55,15 +59,12 @@ def getRecs():
 	route_type = request.args.get('route-type')
 	route_grade_gr = request.args.get('route-grade_gr')
 	route_grade_ls = request.args.get('route-grade_ls')
-	username = '' # request.args.get('username')
+	username = request.args.get('username')
 	recs = recommender(username, route_name, route_grade_gr, 
 								route_grade_ls, route_type)
 	return render_template('my-recommendations.html', recs=recs)
 
 
 if __name__ == '__main__':
-	# Register for pinging service
-
-
 	# Start Flask app
 	app.run(host='0.0.0.0', port=PORT, threaded=True, debug=True)

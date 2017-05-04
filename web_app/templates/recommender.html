@@ -89,6 +89,17 @@
                             </datalist>
                           </br>
                        </br>
+                      <p> Or enter a Mountain Project Username</p>
+                       <label class='rating-form'>Climber Username</label>
+                      </br>
+                         <input list="username" name="username">
+                         <datalist id='username'>
+                              {% for u in users %}
+                              <option value="{{u.name}}">{{u.name}}</option>
+                              {% endfor %}
+                          </datalist>
+                      </br>
+                      </br>
                          <label class='rating-form' >Route Type </label>
                        </br>
                         </br>

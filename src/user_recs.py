@@ -144,11 +144,12 @@ if __name__ == '__main__':
     spark = pyspark.sql.SparkSession.builder.getOrCreate()
     sc = spark.sparkContext
     spark, sc
-
-    user_rec_dict = {}
-    for name in users_df['name']:
-        recs = find_recs(routes_df, name)
-        user_rec_dict[name] = recs.tolist()
+    # start mongo client
     client = MongoClient()
     db = client.redpointer
-    db.user_recs.insert_one(user_rec_dict)
+
+    for name in users_df['name']:
+        recs = find_recs(routes_df, name)
+        user_rec_dict = {}
+        user_rec_dict[name] = recs.tolist()
+        db.user_recs.insert_one(user_rec_dict)

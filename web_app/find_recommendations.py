@@ -110,7 +110,7 @@ def sort_recs(recs):
     '''sort recs to page view'''
     df = pd.DataFrame(recs)
     # sort by page_views in desc order
-    df = df.sort_values('page_views', ascending=False).head(20)
+    df = df.sort_values('page_views', ascending=False)
     # return as dict
     return df.to_dict(orient='records')
 
@@ -125,22 +125,15 @@ def find_recs(routes_df, grade_g, grade_l, climb_type, user_name):
     # rest index and drop index column
     routes_df = routes_df.reset_index().drop('index', axis=1)
     user_df, user_id = get_user_info(user_name)
-    # make user dataframe
-    ratings_data = pd.DataFrame(columns=['route_id', 'user_id'])
-    # reset user_id
-    ratings_data['user_id'] = (0 * routes_df['id']) + user_id 
-    ratings_data['route_id'] = routes_df['id']
-    # find recs from ensemble model
-    if ratings_data.empty:
-        return []
-    else:
-        df = pd.DataFrame(list(db.user_recs.find()))
-        recs_list = df[df['name'] == user_name]['recs'].tolist()[0]
-        # find interection of recs with query results
-        recs_queried = list(set(routes_df['id'].tolist()) & set(recs_list))
-        recs = list(routes.find({"id": {"$in": recs_queried}}))
-        recs = sort_recs(recs)
-        return recs
+    # get recs from user
+    user_rec = list(db.user_recs.find({'name': user_name}))
+    recs_df = pd.DataFrame(columns = ['route_id'])
+    recs_df['route_id'] = user_rec[0]['recs']
+    # find interection of recs with query results
+    recs_queried_df = recs_df[recs_df['route_id'].isin(routes_df['id'])].head(20)
+    recs = list(routes.find({"id": {"$in": recs_queried_df['route_id'].tolist()}}))
+    recs = sort_recs(recs)
+    return recs
 
 
 def recommender(user_name, route_name, grade_g, grade_l, climb_type):

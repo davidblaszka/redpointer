@@ -120,7 +120,6 @@ def find_recs(routes_df, user_name):
     client = MongoClient()
     db = client.routes_updated
     routes = db.routes
-    routes_df = routes_df.reset_index().drop('index', axis=1)
     user_df, user_id = get_user_info(user_name)
     # make user dataframe
     ratings_data = pd.DataFrame(columns=['route_id', 'user_id'])
@@ -148,9 +147,10 @@ if __name__ == '__main__':
     client = MongoClient()
     db = client.redpointer
 
-    for name in users_df['name']:
-        recs = find_recs(routes_df, name)
-        user_rec_dict = {}
-        user_rec_dict['recs'] = recs.tolist()
-        user_rec_dict['name'] = name
-        db.user_recs.insert_one(user_rec_dict)
+    #for name in users_df['name']:
+    name = "David Blaszka"
+    recs_df = find_recs(routes_df, name)
+    user_rec_dict = {}
+    user_rec_dict['recs'] = recs_df['route_id'].tolist()
+    user_rec_dict['name'] = name
+    db.user_recs.insert_one(user_rec_dict)

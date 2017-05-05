@@ -43,7 +43,7 @@ def gradient_boosting(routes_df, user_info):
 def item_by_item_matrix():
     '''make item-by-item matrix based on cosine similarity'''
     # load data frame from csv
-    routes_df = pd.read_csv("routes_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
+    routes_df = pd.read_csv("../data/routes_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
     routes_id = routes_df['id']
     routes_df = routes_df.drop('id', axis=1)
     items_mat = np.array(list(routes_df.values)).astype(float)
@@ -110,7 +110,7 @@ def ensemble(ratings_data, routes_df, user_df):
 
 def get_user_info(user_name):
     # load data frame from csv
-    users_df = pd.read_csv("users_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
+    users_df = pd.read_csv("../data/users_df.csv", sep='\t').drop('Unnamed: 0', axis=1)
     # grab user info
     user_info = users_df[users_df['name'] == user_name]
     user_id = user_info['id'].iloc[0]

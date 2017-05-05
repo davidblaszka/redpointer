@@ -151,5 +151,6 @@ if __name__ == '__main__':
     for name in users_df['name']:
         recs = find_recs(routes_df, name)
         user_rec_dict = {}
-        user_rec_dict[name] = recs.tolist()
+        user_rec_dict['recs'] = recs.tolist()
+        user_rec_dict['name'] = name
         db.user_recs.insert_one(user_rec_dict)

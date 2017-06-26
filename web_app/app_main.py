@@ -11,17 +11,8 @@ client = MongoClient()
 db = client.redpointer
 
 
-@app.route('/')
-def root():
-	# find top routes in washington
-	df = pd.DataFrame(list(db.routes.find()))
-	df_sorted= df.sort_values('page_views', ascending=False).head(20)
-	recs = df_sorted.sort_values('average_rating', ascending=False).head(6)
-	return render_template('index.html', routes=recs)
-
-
-@app.route('/returning-user', methods=['GET', 'POST'])
-def getReturnRatings():
+def recommender_page_setup():
+	'''Returns routes, grade_list, route_type, and users for recommender page'''
 	routes = db.routes.find({})
 	users = db.users.find({})
 	with open('../data/grades.txt') as f:
@@ -29,6 +20,21 @@ def getReturnRatings():
 	grade_list = grade_data.replace('\n', '').replace(' ', '').split(',')
 	# make list of route types
 	route_type = ['Select', 'Aid', 'TR', 'Trad', 'Sport', 'Alpine']
+	return routes, grade_list, route_type, users
+
+
+@app.route('/')
+def root():
+	# find top routes in washington
+	df = pd.DataFrame(list(db.routes.find()))
+	df_sorted = df.sort_values('page_views', ascending=False).head(20)
+	recs = df_sorted.sort_values('average_rating', ascending=False).head(6)
+	return render_template('index.html', routes=recs)
+
+
+@app.route('/returning-user', methods=['GET', 'POST'])
+def getReturnRatings():
+	routes, grade_list, route_type, users = recommender_page_setup()
 	return render_template('recommender.html', 
 							routes=routes, 
 							grades=grade_list, 
@@ -38,14 +44,7 @@ def getReturnRatings():
 
 @app.route('/new-user', methods=['GET', 'POST'])
 def getNewRatings():
-	routes = db.routes.find({})
-	users = db.users.find({})
-	# open grade file
-	with open('../data/grades.txt') as f:
-		grade_data = f.read()
-	grade_list = grade_data.replace('\n', '').replace(' ', '').split(',')
-	# make list of route types
-	route_type = ['Select', 'Aid', 'TR', 'Trad', 'Sport', 'Alpine']
+	routes, grade_list, route_type, users = recommender_page_setup()
 	return render_template('recommender.html', 
 							routes=routes, 
 							grades=grade_list, 
